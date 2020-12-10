@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ResourceRenderComponent } from './resource-render.component';
+import { MedicationRenderComponent } from './resource-render.component';
 
 describe('ResourceRenderComponent', () => {
-  let component: ResourceRenderComponent;
-  let fixture: ComponentFixture<ResourceRenderComponent>;
+  let component: MedicationRenderComponent;
+  let fixture: ComponentFixture<MedicationRenderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ResourceRenderComponent ]
+      declarations: [ MedicationRenderComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ResourceRenderComponent);
+    fixture = TestBed.createComponent(MedicationRenderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

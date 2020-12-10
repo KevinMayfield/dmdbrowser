@@ -5,24 +5,46 @@
          fxLayoutAlign="center"
          fxLayoutGap="10px"
          fxLayoutGap.xs="0">
-        <div class="mat-body-1" fxFlex="2%">
 
-        </div>
-        <div class="mat-body-1" fxFlex="48%">
-            <td-search-input  placeholder="Name or Code" [(ngModel)]="searchInput" [showUnderline]="true" [debounce]="500" (searchDebounce)="search($event,undefined)" (search)="search($event,undefined)" (clear)="searchInput = ''">
+        <div class="mat-body-1" fxFlex="30%">
+            <td-search-input  placeholder="Name or Code" [(ngModel)]="searchInput" [showUnderline]="true" [debounce]="500" (searchDebounce)="search($event)" (search)="search($event)" (clear)="searchInput = ''">
             </td-search-input>
-        </div>
-        <div class="mat-body-1" fxFlex="2%">
+            <section class="example-section">
+                 <mat-checkbox class="example-margin">Moiety (VTM)</mat-checkbox>
+                <mat-checkbox class="example-margin">Product (VMP and AMP)</mat-checkbox>
+                <mat-checkbox class="example-margin">Pack (VMPP and AMPP)</mat-checkbox>
+            </section>
+            <table fxFill="100" mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+
+                <ng-container matColumnDef="code">
+                    <th mat-header-cell *matHeaderCellDef> Code </th>
+                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> {{medication.code}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="display">
+                    <th mat-header-cell *matHeaderCellDef> Display </th>
+                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> {{medication.display}} </td>
+                </ng-container>
+
+                <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
 
         </div>
 
-        <div class="mat-body-1" fxFlex="2%">
 
+        <div class="mat-body-1" fxFlex="70%">
+            <app-medication-render [resource]="medication"></app-medication-render>
+            <app-product-render [resource]="product"></app-product-render>
         </div>
+
+
     </div>
+
 </mat-card>
 
-<app-resource-render></app-resource-render>
+
 
 
 

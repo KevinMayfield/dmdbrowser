@@ -1,6 +1,9 @@
 
-    <div layout="row" layout-align="start center">
-        <td-code-editor
+   <mat-card>
+       <mat-card-header>
+           FHIR Medication
+       </mat-card-header>
+   <!--     <td-code-editor
                 [style.height.px]="300"
                 editorStyle="border:0;"
                 [editorOptions]="{readOnly:true, fontSize:12, automaticLayout: false}"
@@ -10,6 +13,7 @@
                 [language]="editorLanguage"
                 [(ngModel)]="editorVal"
                 flex
-        ></td-code-editor>
-    </div>
+        ></td-code-editor> -->
+        <td-json-formatter [data]="resource" [levelsOpen]="2"></td-json-formatter>
+   </mat-card>
 

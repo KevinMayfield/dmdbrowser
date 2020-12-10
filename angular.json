@@ -23,7 +23,6 @@
                 "module.rules": "prepend"
               }
             },
-
             "outputPath": "dist/medicinalproduct",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -135,5 +134,8 @@
       }
     }
   },
-  "defaultProject": "medicinalproduct"
+  "defaultProject": "medicinalproduct",
+  "cli": {
+    "analytics": "b2743917-b8e6-4380-b2b1-b0c61586e413"
+  }
 }

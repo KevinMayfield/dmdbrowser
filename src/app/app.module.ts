@@ -1,12 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
+import {FlexLayoutModule} from '@angular/flex-layout';
 import { AppRoutingModule } from './app-routing.module';
 import {CovalentLayoutModule} from "@covalent/core/layout";
 import {CovalentStepsModule} from "@covalent/core/steps";
 import {CovalentHighlightModule} from "@covalent/highlight";
-import {CovalentMarkdownModule} from "@covalent/markdown";
-import {CovalentDynamicFormsModule} from "@covalent/dynamic-forms";
 import {CovalentHttpModule} from "@covalent/http";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MainComponent } from './main/main.component';
@@ -19,10 +17,7 @@ import {MatTableModule} from "@angular/material/table";
 import {MatCardModule} from "@angular/material/card";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatButtonModule} from "@angular/material/button";
-import {MatRadioModule} from "@angular/material/radio";
 import {MatSelectModule} from "@angular/material/select";
-import {MatChipsModule} from "@angular/material/chips";
-import {MatSortModule} from "@angular/material/sort";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatDialogModule} from "@angular/material/dialog";
 import {AppComponent} from "./app.component";
@@ -30,14 +25,19 @@ import { BodyComponent } from './body/body.component';
 import {CovalentSearchModule} from "@covalent/core/search";
 import {CovalentCommonModule} from "@covalent/core/common";
 import {CovalentCodeEditorModule} from "@covalent/code-editor";
-import { ResourceRenderComponent } from './resource-render/resource-render.component';
+import { MedicationRenderComponent } from './medication-render/medication-render.component';
+import {CovalentJsonFormatterModule} from "@covalent/core/json-formatter";
+import {MessageService} from "./message.service";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import { ProductRenderComponent } from './product-render/product-render.component';
 
 @NgModule({
   declarations: [
       AppComponent,
     MainComponent,
     BodyComponent,
-    ResourceRenderComponent
+    MedicationRenderComponent,
+    ProductRenderComponent
   ],
   imports: [
     BrowserModule,
@@ -48,13 +48,15 @@ import { ResourceRenderComponent } from './resource-render/resource-render.compo
     // (optional) Additional Covalent Modules imports
     CovalentHttpModule.forRoot(),
     CovalentHighlightModule,
-   // CovalentMarkdownModule,
-   //  CovalentDynamicFormsModule,
+    CovalentJsonFormatterModule,
+
+    // CovalentMarkdownModule,
+    //  CovalentDynamicFormsModule,
 
     CovalentSearchModule,
 
     MatIconModule,
-    //FlexLayoutModule,
+    FlexLayoutModule,
 
 
     MatIconModule,
@@ -74,9 +76,10 @@ import { ResourceRenderComponent } from './resource-render/resource-render.compo
     MatDialogModule,
     CovalentCommonModule,
     CovalentCodeEditorModule,
+    MatCheckboxModule,
 
   ],
-  providers: [],
+  providers: [ MessageService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
