@@ -1,7 +1,7 @@
 
    <mat-card>
        <mat-card-header>
-           FHIR Medication
+           <h2>FHIR Medication</h2>
        </mat-card-header>
    <!--     <td-code-editor
                 [style.height.px]="300"
@@ -14,6 +14,6 @@
                 [(ngModel)]="editorVal"
                 flex
         ></td-code-editor> -->
-        <td-json-formatter [data]="resource" [levelsOpen]="2"></td-json-formatter>
+        <td-json-formatter [data]="resource" [levelsOpen]="4"></td-json-formatter>
    </mat-card>
 

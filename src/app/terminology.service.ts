@@ -75,5 +75,14 @@ export class TerminologyService {
     }
   }
 
+  public post(resource: string, body: any): Observable<any> {
+
+    let headers: HttpHeaders = this.getHeaders(false);
+    headers = headers.append('Content-Type', 'application/fhir+json');
+    headers = headers.append('Accept', 'application/fhir+json');
+
+    return this.http.post<any>(environment.config.baseUrl + resource, body, {headers: headers});
+  }
+
 
 }

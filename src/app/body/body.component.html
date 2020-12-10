@@ -6,7 +6,7 @@
          fxLayoutGap="10px"
          fxLayoutGap.xs="0">
 
-        <div class="mat-body-1" fxFlex="30%">
+        <div class="mat-body-1" fxFlex="20%">
             <td-search-input  placeholder="Name or Code" [(ngModel)]="searchInput" [showUnderline]="true" [debounce]="500" (searchDebounce)="search($event)" (search)="search($event)" (clear)="searchInput = ''">
             </td-search-input>
             <section class="example-section">
@@ -17,14 +17,11 @@
             <table fxFill="100" mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
 
-                <ng-container matColumnDef="code">
-                    <th mat-header-cell *matHeaderCellDef> Code </th>
-                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> {{medication.code}} </td>
-                </ng-container>
+
 
                 <ng-container matColumnDef="display">
                     <th mat-header-cell *matHeaderCellDef> Display </th>
-                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> {{medication.display}} </td>
+                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
                 </ng-container>
 
                 <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
@@ -34,9 +31,41 @@
         </div>
 
 
-        <div class="mat-body-1" fxFlex="70%">
-            <app-medication-render [resource]="medication"></app-medication-render>
-            <app-product-render [resource]="product"></app-product-render>
+        <div class="mat-body-1" fxFlex="80%">
+            <div>
+                <div class="mat-body-1" fxFlex="80%">
+                    <app-medication-render [resource]="medication"></app-medication-render>
+                    <app-product-render [product]="product"></app-product-render>
+                </div>
+                <div class="mat-body-1" fxFlex="20%">
+                    <h2>Parent Codes</h2>
+                    <table mat-table [dataSource]="parentDataSource" class="mat-elevation-z8">
+                        <ng-container matColumnDef="display">
+                            <th mat-header-cell *matHeaderCellDef> Display </th>
+                            <td mat-cell (click)="select(medication)" *matCellDef="let medication">  <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
+                        </ng-container>
+
+                        <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                        <tr mat-row *matRowDef="let row; columns: childDisplayedColumns"></tr>
+                    </table>
+
+                    <h2>Child Codes</h2>
+                    <table mat-table [dataSource]="childDataSource" class="mat-elevation-z8">
+
+
+                        <ng-container matColumnDef="display">
+                            <th mat-header-cell *matHeaderCellDef> Display </th>
+                            <td mat-cell (click)="select(medication)" *matCellDef="let medication">  <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
+                        </ng-container>
+
+                        <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                        <tr mat-row *matRowDef="let row; columns: childDisplayedColumns"></tr>
+                    </table>
+                </div>
+            </div>
+
+
+
         </div>
 
 

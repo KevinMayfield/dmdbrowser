@@ -50,9 +50,6 @@ import { ProductRenderComponent } from './product-render/product-render.componen
     CovalentHighlightModule,
     CovalentJsonFormatterModule,
 
-    // CovalentMarkdownModule,
-    //  CovalentDynamicFormsModule,
-
     CovalentSearchModule,
 
     MatIconModule,

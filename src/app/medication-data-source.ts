@@ -24,7 +24,8 @@ export class MedicationDataSource extends DataSource<any> {
     this.dataStore = { contains: [] };
 
 
-    if (this.contains !== []) {
+   // console.log(this.contains);
+    if (this.contains !== [] && this.contains != undefined) {
       for (const questionnaire of this.contains) {
         this.dataStore.contains.push(<ValueSetExpansionContains> questionnaire);
       }
