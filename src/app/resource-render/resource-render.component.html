@@ -1,0 +1,15 @@
+
+    <div layout="row" layout-align="start center">
+        <td-code-editor
+                [style.height.px]="300"
+                editorStyle="border:0;"
+                [editorOptions]="{readOnly:true, fontSize:12, automaticLayout: false}"
+                #editor
+                class="editor"
+                theme="vs"
+                [language]="editorLanguage"
+                [(ngModel)]="editorVal"
+                flex
+        ></td-code-editor>
+    </div>
+

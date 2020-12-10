@@ -1,0 +1,29 @@
+<mat-card>
+    <div class="mat-card-content"
+         fxLayout
+         fxLayout.xs="column"
+         fxLayoutAlign="center"
+         fxLayoutGap="10px"
+         fxLayoutGap.xs="0">
+        <div class="mat-body-1" fxFlex="2%">
+
+        </div>
+        <div class="mat-body-1" fxFlex="48%">
+            <td-search-input  placeholder="Name or Code" [(ngModel)]="searchInput" [showUnderline]="true" [debounce]="500" (searchDebounce)="search($event,undefined)" (search)="search($event,undefined)" (clear)="searchInput = ''">
+            </td-search-input>
+        </div>
+        <div class="mat-body-1" fxFlex="2%">
+
+        </div>
+
+        <div class="mat-body-1" fxFlex="2%">
+
+        </div>
+    </div>
+</mat-card>
+
+<app-resource-render></app-resource-render>
+
+
+
+
