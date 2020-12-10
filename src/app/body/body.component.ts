@@ -10,11 +10,10 @@ import ValueSetExpansionContains = fhir.ValueSetExpansionContains;
 // @ts-ignore
 import Medication = fhir.Medication;
 import {
-    CodeSystem_PropertyTypeKind,
-    IMedicinalProduct,
-    IParameters,
-    RTTI_Coding
+
+    IParameters
 } from "@ahryman40k/ts-fhir-types/lib/R4";
+import {MatTableDataSource} from "@angular/material/table";
 
 export class CodeElement {
     code: string;
@@ -28,7 +27,14 @@ export class CodeElement {
 })
 export class BodyComponent implements OnInit {
 
+    vmp = false;
+    amp = false;
+    ampp = false;
+    vmpp= false;
+    vtm= false;
   searchInput;
+
+  notes : string[] = [];
 
   dataSource: MedicationDataSource;
 
@@ -36,8 +42,8 @@ export class BodyComponent implements OnInit {
 
     parentCodes: CodeElement[] = [
     ];
+    parentDataSource: MatTableDataSource<CodeElement>;
 
-    parentDataSource : any[] = [];
   medication : Medication = undefined;
 
   product : any = undefined;
@@ -50,9 +56,12 @@ export class BodyComponent implements OnInit {
   constructor(private terminologyService: TerminologyService,
 
               private router: Router,
-              private route: ActivatedRoute) { }
+              private route: ActivatedRoute) {
+      this.parentDataSource = new MatTableDataSource<CodeElement>();
+  }
 
   ngOnInit(): void {
+
   }
 
   search(name) {
@@ -77,6 +86,12 @@ export class BodyComponent implements OnInit {
           code: {}
       };
       this.product = {};
+      this.vmp = false;
+      this.amp = false;
+      this.ampp = false;
+      this.vmpp= false;
+      this.vtm= false;
+      this.notes = [];
       this.medication.code.coding = [
           {
               "system" : medication.system,
@@ -140,22 +155,67 @@ export class BodyComponent implements OnInit {
           if (parameter.name === 'property' && parameter.part.length > 1) {
               var propertyType = parameter.part[0].valueCode;
               var propertyValue = parameter.part[1].valueCode;
-              console.log(propertyType + ' - '+ propertyValue);
+              //console.log(propertyType + ' - '+ propertyValue);
               if (propertyType === 'parent') {
                     this.addParent( propertyValue);
+              } else if (parameter.part[0].name === 'subproperty') {
+                  for (const part of parameter.part) {
+                      for (const subpart of part.part) {
+                          var value = subpart.valueCode
+                          if (value != undefined) {
+                              this.getDisplay(value);
+                          } else {
+                              if (part.valueDecimal != undefined) {
+                                  value = subpart.valueDecimal.toString();
+                                  console.log(subpart.valueDecimal.valueOf().toString());
+                              } else
+                              if (part.valueString != undefined) {
+                                  value = subpart.valueString;
+                              }
+                              console.log(value);
+                              this.notes.push(value);
+                          }
+                      }
+                  }
               }
-
           }
       }
+  }
+
+  getDisplay(concept) {
+      this.terminologyService.getResource('/CodeSystem/$lookup?code='+ concept +'&system=http%3A%2F%2Fsnomed.info%2Fsct&property=display').subscribe(
+          result => {
+              //console.log(result);
+              for ( const parameter of result.parameter) {
+                  //console.log(parameter.name);
+                  if (parameter.name === 'display' ) {
+                      console.log(concept +' - '+ parameter.valueString);
+                      this.notes.push(parameter.valueString);
+                  }
+              }
+          }
+      );
+
   }
 
   addParent(parentCode : string) {
         switch (parentCode) {
             case '30450011000036109': // Medicinal Product
-            case '30560011000036108' : // Trade Product
-            case '30513011000036104': // medicinal product pack
-            case '30425011000036101': // - trade product unit of use
+                this.vmp = true;
                 break;
+            case '30560011000036108' : // Trade Product
+                this.amp = true;
+                break;
+            case '30513011000036104': // medicinal product pack
+                this.vmpp = true;
+                break;
+            case '30425011000036101': // - trade product unit of use
+                this.ampp = true;
+                break;
+            case '30497011000036103':
+                this.vtm= true;
+                break;
+
             default: {
                 const url = '/CodeSystem/$lookup?code='+ parentCode +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
                 this.terminologyService.getResource(url).subscribe(
@@ -166,6 +226,11 @@ export class BodyComponent implements OnInit {
                             //console.log(parameter.name);
                             if (parameter.name === 'display' ) {
                                 console.log(parentCode +' - '+ parameter.valueString);
+                                this.parentCodes.push({
+                                    'code' : parentCode,
+                                    'display': parameter.valueString
+                                })
+                                this.parentDataSource.data = this.parentCodes;
                             }
                         }
                     }

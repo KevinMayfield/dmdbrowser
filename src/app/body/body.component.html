@@ -14,7 +14,7 @@
                 <mat-checkbox class="example-margin">Product (VMP and AMP)</mat-checkbox>
                 <mat-checkbox class="example-margin">Pack (VMPP and AMPP)</mat-checkbox>
             </section>
-            <table fxFill="100" mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
 
 
@@ -34,10 +34,21 @@
         <div class="mat-body-1" fxFlex="80%">
             <div>
                 <div class="mat-body-1" fxFlex="80%">
+
                     <app-medication-render [resource]="medication"></app-medication-render>
                     <app-product-render [product]="product"></app-product-render>
                 </div>
                 <div class="mat-body-1" fxFlex="20%">
+                    <mat-chip *ngIf="amp">AMP</mat-chip>
+                    <mat-chip *ngIf="vmp">VMP</mat-chip>
+                    <mat-chip *ngIf="ampp">AMPP</mat-chip>
+                    <mat-chip *ngIf="vmpp">VMPP</mat-chip>
+                    <mat-chip *ngIf="vtm">VTM</mat-chip>
+                    <mat-list>
+                        <mat-list-item *ngFor="let note of notes">
+                        {{note}}
+                        </mat-list-item>
+                    </mat-list>
                     <h2>Parent Codes</h2>
                     <table mat-table [dataSource]="parentDataSource" class="mat-elevation-z8">
                         <ng-container matColumnDef="display">

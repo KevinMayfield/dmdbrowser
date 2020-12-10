@@ -20,6 +20,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatSelectModule} from "@angular/material/select";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatDialogModule} from "@angular/material/dialog";
+import {MatChipsModule} from '@angular/material/chips';
 import {AppComponent} from "./app.component";
 import { BodyComponent } from './body/body.component';
 import {CovalentSearchModule} from "@covalent/core/search";
@@ -30,6 +31,7 @@ import {CovalentJsonFormatterModule} from "@covalent/core/json-formatter";
 import {MessageService} from "./message.service";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import { ProductRenderComponent } from './product-render/product-render.component';
+
 
 @NgModule({
   declarations: [
@@ -71,6 +73,7 @@ import { ProductRenderComponent } from './product-render/product-render.componen
     //  MatSortModule,
     MatToolbarModule,
     MatDialogModule,
+      MatChipsModule,
     CovalentCommonModule,
     CovalentCodeEditorModule,
     MatCheckboxModule,
