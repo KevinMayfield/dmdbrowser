@@ -1,35 +1,42 @@
 <td-layout class="layout-nav-demo" sidenavWidth="280px">
-    <td-layout-nav-list toolbarTitle="Search" navigationRoute="/" opened="true" mode="side">
-        <!--<button mat-icon-button td-menu-button tdLayoutToggle>
-            <mat-icon>menu</mat-icon>
-        </button> -->
-        <div td-sidenav-content>
-            <div flex>
+    <td-navigation-drawer
+            flex
+            sidenavTitle="Search" >
+        <div flex>
             <td-search-input  placeholder="Name or Code" [(ngModel)]="searchInput" [showUnderline]="true" [debounce]="500" (searchDebounce)="search($event)" (search)="search($event)" (clear)="searchInput = ''">
             </td-search-input>
-            </div>
-            <section class="example-section">
-                <mat-checkbox disabled="true" class="example-margin">Moiety (VTM)</mat-checkbox>
-                <mat-checkbox disabled="true" class="example-margin">Product (VMP and AMP)</mat-checkbox>
-                <mat-checkbox disabled="true" class="example-margin">Pack (VMPP and AMPP)</mat-checkbox>
-            </section>
-            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        </div>
+        <section class="example-section">
+            <mat-checkbox disabled="true" class="example-margin">Moiety (VTM)</mat-checkbox>
+            <mat-checkbox disabled="true" class="example-margin">Product (VMP and AMP)</mat-checkbox>
+            <mat-checkbox disabled="true" class="example-margin">Pack (VMPP and AMPP)</mat-checkbox>
+        </section>
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
 
 
 
-                <ng-container matColumnDef="display">
-                    <th mat-header-cell *matHeaderCellDef> Display </th>
-                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
-                </ng-container>
+            <ng-container matColumnDef="display">
+                <th mat-header-cell *matHeaderCellDef> Display </th>
+                <!-- (click)="select(medication)" -->
+                <td mat-cell class="hover" routerLink="/{{medication.code}}" *matCellDef="let medication" tdLayoutToggle> <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
+            </ng-container>
 
-                <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
+            <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+    </td-navigation-drawer>
+    <td-layout-nav-list navigationRoute="/" opened="false" mode="side">
+
+        <div td-sidenav-content>
+
 
         </div>
         <div td-toolbar-content>
-            <button mat-button tdLayoutNavListToggle>toggle</button>
+            <button mat-icon-button td-menu-button tdLayoutToggle>
+                <mat-icon>search</mat-icon>
+            </button>
             Medication Browser
         </div>
         <router-outlet></router-outlet>
