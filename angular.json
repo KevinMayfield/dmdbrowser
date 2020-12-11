@@ -17,12 +17,6 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "customWebpackConfig": {
-              "path": "./monaco-webpack.config.js",
-              "mergeStrategies": {
-                "module.rules": "prepend"
-              }
-            },
             "outputPath": "dist/medicinalproduct",
             "index": "src/index.html",
             "main": "src/main.ts",

@@ -11,7 +11,6 @@
   },
   "private": true,
   "dependencies": {
-    "@ahryman40k/ts-fhir-types": "^4.0.34",
     "@angular/animations": "~11.0.4",
     "@angular/cdk": "^11.0.2",
     "@angular/common": "~11.0.4",
@@ -23,7 +22,6 @@
     "@angular/platform-browser": "~11.0.4",
     "@angular/platform-browser-dynamic": "~11.0.4",
     "@angular/router": "~11.0.4",
-    "@covalent/code-editor": "^3.1.0",
     "@covalent/core": "^3.1.0",
     "@covalent/dynamic-forms": "^3.1.0",
     "@covalent/highlight": "^3.1.0",
@@ -49,7 +47,6 @@
     "karma-coverage": "~2.0.3",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
-    "monaco-editor-webpack-plugin": "^2.0.0",
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
