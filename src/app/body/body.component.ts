@@ -16,6 +16,8 @@ import ParametersParameter = fhir.ParametersParameter;
 import Parameters = fhir.Parameters;
 // @ts-ignore
 import CodeableConcept = fhir.CodeableConcept;
+// @ts-ignore
+import Coding = fhir.Coding;
 
 export class CodeElement {
     code: string;
@@ -218,14 +220,16 @@ export class BodyComponent implements OnInit {
                               if (parameter.name === 'display') {
 
                                   var valueString: string = parameter.valueString + ' (' + param.valueCode + ')';
-                                  var newParam: ParametersParameter
-                                  newParam = {
-                                      "name": param.name,
-                                      "valueString": valueString
+                                  var coding: Coding = {};
+                                  coding = {
+                                      "system": "http://snomed.info/sct",
+                                      "code" : param.valueCode,
+                                      "display": parameter.valueString
                                   };
                                   // This is a bodge
                                   param.valueCode = valueString;
-
+                                  // This should be the answer
+                                  param.valueCoding = coding;
                               }
                           }
                       }
