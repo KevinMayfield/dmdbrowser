@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 import {ActivatedRoute, Router} from "@angular/router";
 // @ts-ignore
@@ -36,11 +36,11 @@ export class BodyComponent implements OnInit {
     ampp = false;
     vmpp= false;
     vtm= false;
-  searchInput;
+
 
   notes : string[] = [];
 
-  dataSource: MedicationDataSource;
+  conceptid : string= undefined;
 
   childDataSource: MedicationDataSource;
 
@@ -50,12 +50,13 @@ export class BodyComponent implements OnInit {
 
   medication : Medication = undefined;
 
+  workerMedication : Medication = undefined;
+
   codeableConcept : CodeableConcept = undefined;
 
   product : any = undefined;
   //medicationProduct : IMedicinalProduct = undefined;
 
-  displayedColumns = [ 'display'];
 
   childDisplayedColumns = [ 'display'];
 
@@ -67,28 +68,29 @@ export class BodyComponent implements OnInit {
   }
 
   ngOnInit(): void {
+      this.doSetup();
 
+      this.route.url.subscribe( url => {
+        this.doSetup();
+      });
   }
 
-  search(name) {
+    doSetup() {
 
-    if (name != undefined) {
-      const url = '/ValueSet/$expand?_format=json&url=https%3A%2F%2Fhealthterminologies.gov.au%2Ffhir%2FValueSet%2Faustralian-medication-1&filter='+name+'&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active';
-      //const url = '/ValueSet/$expand?_format=json&url=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%3Ffhir_vs&filter=Clobazam&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active'
-      this.terminologyService.get(url).subscribe(
-          result => {
-            const valueSet = <ValueSet>result;
-
-            if (valueSet.expansion != undefined )
-            this.dataSource = new MedicationDataSource(valueSet.expansion.contains);
-          }
-      );
+        const tempid = this.route.snapshot.paramMap.get('conceptid');
+        if (this.conceptid !== tempid) {
+            this.conceptid = tempid;
+            this.setup(this.conceptid);
+        }
     }
-  }
 
-  select(medication: ValueSetExpansionContains) {
+    select(medication: ValueSetExpansionContains) {
+        this.router.navigate([ medication.code ] );
+    }
 
-      this.medication = {
+  setup(medication: string) {
+
+      this.workerMedication = {
           code: {}
       };
       this.product = {};
@@ -98,21 +100,24 @@ export class BodyComponent implements OnInit {
       this.vmpp= false;
       this.vtm= false;
       this.notes = [];
-      this.medication.code.coding = [
+      this.workerMedication.code.coding = [
           {
-              "system" : medication.system,
-              "code" : medication.code,
-              "display": medication.display
+              "system" : "http://snomed.info/sct",
+              "code" : medication,
+              "display": "UNK"
           } ];
+      this.medication = {
+          "code" : this.workerMedication.code
+      };
       this.codeableConcept = {};
       this.codeableConcept.coding = [
           {
-              "system" : medication.system,
-              "code" : medication.code,
-              "display": medication.display
+              "system" : "http://snomed.info/sct",
+              "code" : medication,
+              "display": "UNK"
           } ];
 
-      const url = '/CodeSystem/$lookup?code='+ medication.code +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
+      const url = '/CodeSystem/$lookup?code='+ medication +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
       this.terminologyService.getResource(url).subscribe(
           result => {
               this.processProducts(result);
@@ -135,7 +140,7 @@ export class BodyComponent implements OnInit {
                                         {
                                             "property": "parent",
                                             "op": "=",
-                                            "value": medication.code
+                                            "value": medication
                                         }
                                     ],
                                     "version": 'http://snomed.info/sct/32506021000036107/version/20201130'
@@ -157,7 +162,12 @@ export class BodyComponent implements OnInit {
               const valueSet = <ValueSet>result;
               if (valueSet.expansion != undefined )
                   this.childDataSource = new MedicationDataSource(valueSet.expansion.contains);
-          }
+          },
+          err => console.error('Observer got an error: ' + err),
+           () => {
+
+           },
+
       );
 
   }
@@ -168,7 +178,10 @@ export class BodyComponent implements OnInit {
     }
 
   processParameter(params : ParametersParameter[] ) {
-
+      var manfacturedForm = false;
+      var unit = false;
+      var unitOfUse = false;
+      var ingredient = false;
       if (params.length>0 && params[0].name === 'code' && params[0].valueCode != undefined && params[0].valueCode === 'parent' ) {
           this.getParents(params);
       }
@@ -176,7 +189,11 @@ export class BodyComponent implements OnInit {
       for ( const parameter of params) {
           // Process parent codes first .... not robust as second call could in theory beat first call
           if (parameter.valueCode != undefined) {
-              this.getDisplay(parameter);
+              this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient);
+              if (parameter.valueCode == '30523011000036108') manfacturedForm = true;
+              if (parameter.valueCode == '700000081000036101') ingredient = true;
+              if (parameter.valueCode == '177631000036102') unit = true;
+              if (parameter.valueCode == '30548011000036101') unitOfUse = true;
           }
           if (parameter.part !== undefined && parameter.part.length> 0) {
               this.processParameter(parameter.part);
@@ -186,7 +203,7 @@ export class BodyComponent implements OnInit {
   }
 
 
-  getDisplay(param : ParametersParameter) {
+  getDisplay(param : ParametersParameter, manfacturedForm,unit, unitOfUse, ingredient) {
 
       if (this.isNumber(param.valueCode)) {
 
@@ -198,6 +215,10 @@ export class BodyComponent implements OnInit {
               case '30560011000036108' : // Trade Product
                   this.amp = true;
                   param.valueCode = 'Trade Product (30560011000036108)';
+                  break;
+              case '30404011000036106':
+                  param.valueCode = 'trade product pack';
+                  this.ampp = true;
                   break;
               case '30513011000036104': // medicinal product pack
                   this.vmpp = true;
@@ -226,6 +247,29 @@ export class BodyComponent implements OnInit {
                                       "code" : param.valueCode,
                                       "display": parameter.valueString
                                   };
+                                  if (manfacturedForm) {
+
+                                      this.workerMedication.form=  {
+                                          "coding": [ ]
+                                      };
+                                      this.workerMedication.form.coding.push(coding);
+                                      console.log(this.medication);
+                                      this.medication = {
+                                          "code" : this.workerMedication.code,
+                                          "form" : this.workerMedication.form
+                                      };
+                                      // Above is not displaying
+                                      this.notes.push('Form: '+parameter.valueString)
+                                  }
+                                  if (unitOfUse) {
+                                      this.notes.push('Unit Of Use: '+parameter.valueString)
+                                  }
+                                  if (ingredient) {
+                                      this.notes.push('Active Ingredient: '+parameter.valueString)
+                                  }
+                                  if (unit) {
+                                      this.notes.push('Unit: '+parameter.valueString)
+                                  }
                                   // This is a bodge
                                   param.valueCode = valueString;
                                   // This should be the answer
@@ -248,6 +292,7 @@ export class BodyComponent implements OnInit {
                   case '30513011000036104': // medicinal product pack
                   case '30425011000036101': // - trade product unit of use
                   case '30497011000036103':
+                  case '30404011000036106':
                     break;
                   default: {
                       const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';

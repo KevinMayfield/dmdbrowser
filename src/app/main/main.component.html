@@ -1,34 +1,37 @@
 <td-layout class="layout-nav-demo" sidenavWidth="280px">
-<!--    <td-navigation-drawer
-            flex
-            sidenavTitle="Covalent"
-            logo="teradata-dark"
-            name="Firstname Lastname"
-            email="firstname.lastname@company.com"
-    >
-        <mat-nav-list>
-            <a mat-list-item>
-                <mat-icon>home</mat-icon>
-                Home
-            </a>
-            <a mat-list-item tdLayoutToggle>
-                <mat-icon>close</mat-icon>
-                Close Drawer
-            </a>
-        </mat-nav-list>
-        <div td-navigation-drawer-menu>
-            <mat-nav-list>
-                <a mat-list-item>
-                    <mat-icon>account_box</mat-icon>
-                    Profile
-                </a>
-            </mat-nav-list>
-        </div>
-    </td-navigation-drawer> -->
-    <td-layout-nav toolbarTitle="Medication Browser" navigationRoute="/">
-   <!--     <button mat-icon-button td-menu-button >
+    <td-layout-nav-list toolbarTitle="Search" navigationRoute="/" opened="true" mode="side">
+        <!--<button mat-icon-button td-menu-button tdLayoutToggle>
             <mat-icon>menu</mat-icon>
         </button> -->
+        <div td-sidenav-content>
+            <div flex>
+            <td-search-input  placeholder="Name or Code" [(ngModel)]="searchInput" [showUnderline]="true" [debounce]="500" (searchDebounce)="search($event)" (search)="search($event)" (clear)="searchInput = ''">
+            </td-search-input>
+            </div>
+            <section class="example-section">
+                <mat-checkbox disabled="true" class="example-margin">Moiety (VTM)</mat-checkbox>
+                <mat-checkbox disabled="true" class="example-margin">Product (VMP and AMP)</mat-checkbox>
+                <mat-checkbox disabled="true" class="example-margin">Pack (VMPP and AMPP)</mat-checkbox>
+            </section>
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+
+
+
+                <ng-container matColumnDef="display">
+                    <th mat-header-cell *matHeaderCellDef> Display </th>
+                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
+                </ng-container>
+
+                <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+        </div>
+        <div td-toolbar-content>
+            <button mat-button tdLayoutNavListToggle>toggle</button>
+            Medication Browser
+        </div>
         <router-outlet></router-outlet>
-    </td-layout-nav>
+    </td-layout-nav-list>
 </td-layout>

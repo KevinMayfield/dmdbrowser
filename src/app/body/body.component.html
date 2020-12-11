@@ -1,37 +1,6 @@
+
 <mat-card>
-    <div class="mat-card-content"
-         fxLayout
-         fxLayout.xs="column"
-         fxLayoutAlign="center"
-         fxLayoutGap="10px"
-         fxLayoutGap.xs="0">
 
-        <div class="mat-body-1" fxFlex="20%">
-            <td-search-input  placeholder="Name or Code" [(ngModel)]="searchInput" [showUnderline]="true" [debounce]="500" (searchDebounce)="search($event)" (search)="search($event)" (clear)="searchInput = ''">
-            </td-search-input>
-            <section class="example-section">
-                 <mat-checkbox disabled="true" class="example-margin">Moiety (VTM)</mat-checkbox>
-                <mat-checkbox disabled="true" class="example-margin">Product (VMP and AMP)</mat-checkbox>
-                <mat-checkbox disabled="true" class="example-margin">Pack (VMPP and AMPP)</mat-checkbox>
-            </section>
-            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-
-
-
-
-                <ng-container matColumnDef="display">
-                    <th mat-header-cell *matHeaderCellDef> Display </th>
-                    <td mat-cell (click)="select(medication)" *matCellDef="let medication"> <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
-                </ng-container>
-
-                <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
-
-        </div>
-
-
-        <div class="mat-body-1" fxFlex="80%">
             <div>
                 <div class="mat-body-1" fxFlex="80%">
 
@@ -74,13 +43,6 @@
                     </table>
                 </div>
             </div>
-
-
-
-        </div>
-
-
-    </div>
 
 </mat-card>
 

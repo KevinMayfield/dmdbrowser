@@ -8,7 +8,8 @@ const routes: Routes = [
   {
     path: '', component: MainComponent,
     children : [
-      { path: '', component: BodyComponent}
+      { path: '', component: BodyComponent},
+      { path: ':conceptid', component: BodyComponent}
     ]
   }
   ]
