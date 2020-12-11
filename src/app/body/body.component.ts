@@ -42,6 +42,10 @@ export class BodyComponent implements OnInit {
 
   conceptid : string= undefined;
 
+  display : string = undefined;
+
+  codeSystem : "http://snomed.info/sct";
+
   childDataSource: MedicationDataSource;
 
     parentCodes: CodeElement[] = [
@@ -90,9 +94,7 @@ export class BodyComponent implements OnInit {
 
   setup(medication: string) {
 
-      this.workerMedication = {
-          code: {}
-      };
+
       this.product = {};
       this.vmp = false;
       this.amp = false;
@@ -100,22 +102,10 @@ export class BodyComponent implements OnInit {
       this.vmpp= false;
       this.vtm= false;
       this.notes = [];
-      this.workerMedication.code.coding = [
-          {
-              "system" : "http://snomed.info/sct",
-              "code" : medication,
-              "display": "UNK"
-          } ];
-      this.medication = {
-          "code" : this.workerMedication.code
-      };
+
       this.codeableConcept = {};
       this.codeableConcept.coding = [
-          {
-              "system" : "http://snomed.info/sct",
-              "code" : medication,
-              "display": "UNK"
-          } ];
+         this.getCoding() ];
 
       const url = '/CodeSystem/$lookup?code='+ medication +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
       this.terminologyService.getResource(url).subscribe(
@@ -160,8 +150,9 @@ export class BodyComponent implements OnInit {
               //this.product = result.parameter;
 
               const valueSet = <ValueSet>result;
-              if (valueSet.expansion != undefined )
+              if (valueSet.expansion != undefined ) {
                   this.childDataSource = new MedicationDataSource(valueSet.expansion.contains);
+              }
           },
           err => console.error('Observer got an error: ' + err),
            () => {
@@ -172,8 +163,42 @@ export class BodyComponent implements OnInit {
 
   }
 
+  getCoding() {
+      return  {
+          "system" : this.codeSystem,
+          "code" : this.conceptid,
+          "display": this.display
+      }
+  }
     processProducts(parameters : Parameters ) {
         this.parentCodes =[  ];
+        // Don't know name of concept at this point
+        for ( const parameter of parameters.parameter) {
+
+            console.log(parameter.name);
+            if (parameter.name === 'display') {
+                this.display = parameter.valueString;
+            }
+            if (parameter.name === 'system') {
+                this.codeSystem = parameter.valueString;
+            }
+        }
+        this.workerMedication = {
+            code: {}
+        };
+        this.workerMedication = {
+            "code" : {}
+        };
+        this.workerMedication.code.coding = [
+            this.getCoding()  ];
+        this.medication = {
+            "code" : this.workerMedication.code
+        };
+
+        this.codeableConcept = {};
+        this.codeableConcept.coding = [
+            this.getCoding() ];
+
         this.processParameter(parameters.parameter);
     }
 
