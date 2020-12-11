@@ -1,19 +1,39 @@
 
    <mat-card>
-       <mat-card-header>
-           <h2>FHIR Medication</h2>
-       </mat-card-header>
-   <!--     <td-code-editor
-                [style.height.px]="300"
-                editorStyle="border:0;"
-                [editorOptions]="{readOnly:true, fontSize:12, automaticLayout: false}"
-                #editor
-                class="editor"
-                theme="vs"
-                [language]="editorLanguage"
-                [(ngModel)]="editorVal"
-                flex
-        ></td-code-editor> -->
-        <td-json-formatter [data]="resource" [levelsOpen]="4"></td-json-formatter>
+
+       <div class="mat-card-content"
+            fxLayout
+            fxLayout.xs="column"
+            fxLayoutAlign="center"
+            fxLayoutGap="10px"
+            fxLayoutGap.xs="0">
+
+           <div class="mat-body-1" fxFlex="50%">
+               <mat-card-header>
+                   <h2>FHIR Medication</h2>
+               </mat-card-header>
+           <!--     <td-code-editor
+                        [style.height.px]="300"
+                        editorStyle="border:0;"
+                        [editorOptions]="{readOnly:true, fontSize:12, automaticLayout: false}"
+                        #editor
+                        class="editor"
+                        theme="vs"
+                        [language]="editorLanguage"
+                        [(ngModel)]="editorVal"
+                        flex
+                ></td-code-editor> -->
+
+                <td-json-formatter [data]="medication" [levelsOpen]="4"></td-json-formatter>
+           </div>
+           <div class="mat-body-1" fxFlex="50%">
+               <mat-card-header>
+                   <h2>FHIR Codeable Concept</h2>
+               </mat-card-header>
+
+
+               <td-json-formatter [data]="codeableConcept" [levelsOpen]="4"></td-json-formatter>
+           </div>
+       </div>
    </mat-card>
 

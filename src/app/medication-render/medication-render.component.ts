@@ -4,6 +4,8 @@ import Patient = fhir.Patient;
 // @ts-ignore
 import Medication = fhir.Medication;
 import {IMedication} from "@ahryman40k/ts-fhir-types/lib/R4";
+// @ts-ignore
+import CodeableConcept = fhir.CodeableConcept;
 
 
 
@@ -16,9 +18,11 @@ export class MedicationRenderComponent implements OnInit {
 
   editorLanguage: string = 'json';
 
-    @Input()
+  @Input()
+  medication : Medication;
 
-  resource : Medication;
+  @Input()
+  codeableConcept : CodeableConcept;
 
   constructor() { }
 

@@ -9,11 +9,13 @@ import {MedicationDataSource} from "../medication-data-source";
 import ValueSetExpansionContains = fhir.ValueSetExpansionContains;
 // @ts-ignore
 import Medication = fhir.Medication;
-import {
-
-    IParameters
-} from "@ahryman40k/ts-fhir-types/lib/R4";
 import {MatTableDataSource} from "@angular/material/table";
+// @ts-ignore
+import ParametersParameter = fhir.ParametersParameter;
+// @ts-ignore
+import Parameters = fhir.Parameters;
+// @ts-ignore
+import CodeableConcept = fhir.CodeableConcept;
 
 export class CodeElement {
     code: string;
@@ -45,6 +47,8 @@ export class BodyComponent implements OnInit {
     parentDataSource: MatTableDataSource<CodeElement>;
 
   medication : Medication = undefined;
+
+  codeableConcept : CodeableConcept = undefined;
 
   product : any = undefined;
   //medicationProduct : IMedicinalProduct = undefined;
@@ -81,7 +85,7 @@ export class BodyComponent implements OnInit {
   }
 
   select(medication: ValueSetExpansionContains) {
-      console.log(medication);
+
       this.medication = {
           code: {}
       };
@@ -93,6 +97,13 @@ export class BodyComponent implements OnInit {
       this.vtm= false;
       this.notes = [];
       this.medication.code.coding = [
+          {
+              "system" : medication.system,
+              "code" : medication.code,
+              "display": medication.display
+          } ];
+      this.codeableConcept = {};
+      this.codeableConcept.coding = [
           {
               "system" : medication.system,
               "code" : medication.code,
@@ -148,95 +159,120 @@ export class BodyComponent implements OnInit {
       );
 
   }
-  processProducts(parameters : IParameters ) {
-      this.parentCodes =[  ];
-      for ( const parameter of parameters.parameter) {
-          //console.log(parameter.name);
-          if (parameter.name === 'property' && parameter.part.length > 1) {
-              var propertyType = parameter.part[0].valueCode;
-              var propertyValue = parameter.part[1].valueCode;
-              //console.log(propertyType + ' - '+ propertyValue);
-              if (propertyType === 'parent') {
-                    this.addParent( propertyValue);
-              } else if (parameter.part[0].name === 'subproperty') {
-                  for (const part of parameter.part) {
-                      for (const subpart of part.part) {
-                          var value = subpart.valueCode
-                          if (value != undefined) {
-                              this.getDisplay(value);
-                          } else {
-                              if (part.valueDecimal != undefined) {
-                                  value = subpart.valueDecimal.toString();
-                                  console.log(subpart.valueDecimal.valueOf().toString());
-                              } else
-                              if (part.valueString != undefined) {
-                                  value = subpart.valueString;
+
+    processProducts(parameters : Parameters ) {
+        this.parentCodes =[  ];
+        this.processParameter(parameters.parameter);
+    }
+
+  processParameter(params : ParametersParameter[] ) {
+
+      if (params.length>0 && params[0].name === 'code' && params[0].valueCode != undefined && params[0].valueCode === 'parent' ) {
+          this.getParents(params);
+      }
+
+      for ( const parameter of params) {
+          // Process parent codes first .... not robust as second call could in theory beat first call
+          if (parameter.valueCode != undefined) {
+              this.getDisplay(parameter);
+          }
+          if (parameter.part !== undefined && parameter.part.length> 0) {
+              this.processParameter(parameter.part);
+          }
+      }
+
+  }
+
+
+  getDisplay(param : ParametersParameter) {
+
+      if (this.isNumber(param.valueCode)) {
+
+          switch (param.valueCode) {
+              case '30450011000036109': // Medicinal Product
+                  this.vmp = true;
+                  param.valueCode = 'Medicinal Product (30450011000036109)';
+                  break;
+              case '30560011000036108' : // Trade Product
+                  this.amp = true;
+                  param.valueCode = 'Trade Product (30560011000036108)';
+                  break;
+              case '30513011000036104': // medicinal product pack
+                  this.vmpp = true;
+                  param.valueCode = 'medicinal product pack (30513011000036104)';
+                  break;
+              case '30425011000036101': // - trade product unit of use
+                  this.ampp = true;
+                  param.valueCode = 'trade product unit of use (30425011000036101)';
+                  break;
+              case '30497011000036103':
+                  this.vtm = true;
+                  param.valueCod= 'moiety (30497011000036103)';
+                  break;
+              default:
+                  this.terminologyService.getResource('/CodeSystem/$lookup?code=' + param.valueCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&property=display').subscribe(
+                      result => {
+
+                          for (const parameter of result.parameter) {
+
+                              if (parameter.name === 'display') {
+
+                                  var valueString: string = parameter.valueString + ' (' + param.valueCode + ')';
+                                  var newParam: ParametersParameter
+                                  newParam = {
+                                      "name": param.name,
+                                      "valueString": valueString
+                                  };
+                                  // This is a bodge
+                                  param.valueCode = valueString;
+
                               }
-                              console.log(value);
-                              this.notes.push(value);
                           }
                       }
+                  );
+          }
+      }
+  }
+
+  getParents(params : ParametersParameter[] ) {
+      for (const parameter of params) {
+          if (parameter.valueCode != 'parent' && parameter.name === 'value') {
+              var parentCode = parameter.valueCode;
+              switch (parentCode) {
+                  case '30450011000036109': // Medicinal Product
+                  case '30560011000036108' : // Trade Product
+                  case '30513011000036104': // medicinal product pack
+                  case '30425011000036101': // - trade product unit of use
+                  case '30497011000036103':
+                    break;
+                  default: {
+                      const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
+                      this.terminologyService.getResource(url).subscribe(
+                          result => {
+                              for (const parameter of result.parameter) {
+                                  if (parameter.name === 'display') {
+                                      this.parentCodes.push({
+                                          'code': parentCode,
+                                          'display': parameter.valueString
+                                      })
+                                      this.parentDataSource.data = this.parentCodes;
+                                  }
+                              }
+                          }
+                      );
                   }
               }
           }
       }
   }
 
-  getDisplay(concept) {
-      this.terminologyService.getResource('/CodeSystem/$lookup?code='+ concept +'&system=http%3A%2F%2Fsnomed.info%2Fsct&property=display').subscribe(
-          result => {
-              //console.log(result);
-              for ( const parameter of result.parameter) {
-                  //console.log(parameter.name);
-                  if (parameter.name === 'display' ) {
-                      console.log(concept +' - '+ parameter.valueString);
-                      this.notes.push(parameter.valueString);
-                  }
-              }
-          }
-      );
 
-  }
 
-  addParent(parentCode : string) {
-        switch (parentCode) {
-            case '30450011000036109': // Medicinal Product
-                this.vmp = true;
-                break;
-            case '30560011000036108' : // Trade Product
-                this.amp = true;
-                break;
-            case '30513011000036104': // medicinal product pack
-                this.vmpp = true;
-                break;
-            case '30425011000036101': // - trade product unit of use
-                this.ampp = true;
-                break;
-            case '30497011000036103':
-                this.vtm= true;
-                break;
-
-            default: {
-                const url = '/CodeSystem/$lookup?code='+ parentCode +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
-                this.terminologyService.getResource(url).subscribe(
-                    result => {
-                        console.log(parentCode);
-                        //console.log(result);
-                        for ( const parameter of result.parameter) {
-                            //console.log(parameter.name);
-                            if (parameter.name === 'display' ) {
-                                console.log(parentCode +' - '+ parameter.valueString);
-                                this.parentCodes.push({
-                                    'code' : parentCode,
-                                    'display': parameter.valueString
-                                })
-                                this.parentDataSource.data = this.parentCodes;
-                            }
-                        }
-                    }
-                );
-            }
-        }
-  }
+    isNumber(value: string | number): boolean
+    {
+        return ((value != null) &&
+            (value !== '') &&
+            !isNaN(Number(value.toString())));
+    }
 
 }
