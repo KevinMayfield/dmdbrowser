@@ -265,23 +265,23 @@ unavailableSub = 'VMP non-availability indicator';
               case '10364001000001104':
               case '10363801000001108':
                   this.drugType = 'VMP';
-                  param.valueCode = 'Medicinal Product (30450011000036109)';
+                  param.valueCode = 'Medicinal Product ('+param.valueCode +')';
                   break;
               case '30560011000036108' : // Trade Product
               case "9191801000001103":
               case '10363901000001102':
                   this.drugType = 'AMP';
-                  param.valueCode = 'Trade Product';
+                  param.valueCode = 'Trade Product ('+param.valueCode +')';
                   break;
               case '30404011000036106':
               case '30425011000036101': // - trade product unit of use
-                  param.valueCode = 'trade product pack';
+                  param.valueCode = 'trade product pack ('+param.valueCode +')';
                   this.drugType = 'AMPP';
                   break;
               case '30513011000036104': // medicinal product pack
               case '8653601000001108':
                   this.drugType = 'VMPP';
-                  param.valueCode = 'medicinal product pack (30513011000036104)';
+                  param.valueCode = 'medicinal product pack ('+param.valueCode +')';
                   break;
 
            /* AU  case '30497011000036103':
@@ -290,7 +290,7 @@ unavailableSub = 'VMP non-availability indicator';
                   break; */
               case '10363701000001104':
                   this.drugType = 'VTM';
-                  param.valueCode= 'Virtual Therapeutic Moiety (10363701000001104)';
+                  param.valueCode= 'Virtual Therapeutic Moiety ('+param.valueCode +')';
                   break;
               default:
                   this.queryCnt++;
@@ -398,6 +398,7 @@ unavailableSub = 'VMP non-availability indicator';
                   case '440131009':
                   case '10364001000001104' : // 'ampp'
                   case '8653601000001108':
+                  case '10363901000001102':
                     break;
                   default: {
                       const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version='+this.terminologyService.getSNOMEDVersion()+'&property=*';
