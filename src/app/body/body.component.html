@@ -3,6 +3,7 @@
 
             <td-message *ngIf="drugType" [label]="drugType" sublabel="Drug Type" color="primary" icon="info"></td-message>
             <td-message *ngIf="unavailable" [label]="unavailable" [sublabel]="unavailableSub" color="warn" icon="warning"></td-message>
+             <td-message *ngIf="discontinued" label="Discontinued" [sublabel]="discontinued" color="warn" icon="warning"></td-message>
             <td-message *ngIf="scheduled" label="Scheduled Drug" [sublabel]="scheduled" color="warn" icon="warning"></td-message>
             <mat-list>
                 <mat-list-item *ngFor="let note of notes">

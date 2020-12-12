@@ -36,6 +36,7 @@ export class BodyComponent implements OnInit {
 drugType : string = undefined;
 unavailable: string = undefined;
 unavailableSub = 'VMP non-availability indicator';
+    discontinued :string = undefined;
 
 
   notes : string[] = [];
@@ -108,6 +109,7 @@ unavailableSub = 'VMP non-availability indicator';
 
       this.product = {};
       this.drugType = undefined;
+      this.discontinued = undefined;
       this.notes = [];
       this.ampCodes = [];
       this.codeableConcept = {};
@@ -222,6 +224,7 @@ unavailableSub = 'VMP non-availability indicator';
       var prescribingStatus= false;
       var amp =false;
       var unavailable = false;
+      var discont = false;
       if (params.length>0 && params[0].name === 'code' && params[0].valueCode != undefined && params[0].valueCode === 'parent' ) {
           this.getParents(params);
       }
@@ -229,7 +232,7 @@ unavailableSub = 'VMP non-availability indicator';
       for ( const parameter of params) {
           // Process parent codes first .... not robust as second call could in theory beat first call
           if (parameter.valueCode != undefined) {
-              this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient,scheduled,synonym,prescribingStatus, amp, unavailable);
+              this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient,scheduled,synonym,prescribingStatus, amp, unavailable,discont);
               if (parameter.valueCode == '30523011000036108' ||
                   parameter.valueCode == '732947008' ||
               parameter.valueCode == '10362901000001105') manfacturedForm = true;
@@ -245,6 +248,7 @@ unavailableSub = 'VMP non-availability indicator';
               if (parameter.valueCode == '8940001000001105') prescribingStatus= true;
               if (parameter.valueCode == '10362701000001108') amp = true;
               if (parameter.valueCode == '8940601000001102') unavailable = true;
+              if (parameter.valueCode == '8941901000001101') discont = true;
           }
           if (parameter.part !== undefined && parameter.part.length> 0) {
               this.processParameter(parameter.part);
@@ -256,7 +260,7 @@ unavailableSub = 'VMP non-availability indicator';
   }
 
 
-  getDisplay(param : ParametersParameter, manfacturedForm,unit, unitOfUse, ingredient, scheduled, synonym,prescribingStatus, amp, unavailable) {
+  getDisplay(param : ParametersParameter, manfacturedForm,unit, unitOfUse, ingredient, scheduled, synonym,prescribingStatus, amp, unavailable,discont) {
 
       if (this.isNumber(param.valueCode)) {
 
@@ -347,6 +351,9 @@ unavailableSub = 'VMP non-availability indicator';
                                   }
                                   if (unavailable) {
                                       if (!(parameter.valueString.startsWith("Available"))) this.unavailable =parameter.valueString;
+                                  }
+                                  if (discont) {
+                                      this.discontinued= parameter.valueString;
                                   }
                                   // This is a bodge
                                   delete param.valueCode;// = undefined;
