@@ -279,6 +279,7 @@ unavailableSub = 'VMP non-availability indicator';
                   this.drugType = 'AMPP';
                   break;
               case '30513011000036104': // medicinal product pack
+              case '8653601000001108':
                   this.drugType = 'VMPP';
                   param.valueCode = 'medicinal product pack (30513011000036104)';
                   break;
@@ -396,6 +397,7 @@ unavailableSub = 'VMP non-availability indicator';
                   case '350295000': // oral form dose
                   case '440131009':
                   case '10364001000001104' : // 'ampp'
+                  case '8653601000001108':
                     break;
                   default: {
                       const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version='+this.terminologyService.getSNOMEDVersion()+'&property=*';
