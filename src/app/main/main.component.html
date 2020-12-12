@@ -13,13 +13,13 @@
         </section>
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
-
-
-
             <ng-container matColumnDef="display">
                 <th mat-header-cell *matHeaderCellDef> Display </th>
                 <!-- (click)="select(medication)" -->
-                <td mat-cell class="hover" routerLink="/{{medication.code}}" *matCellDef="let medication" tdLayoutToggle> <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
+                <td mat-cell class="hover" routerLink="/{{medication.code}}" *matCellDef="let medication"
+                    [matTooltip]="'SNOMED CT - '+medication.code" tdLayoutToggle>
+                    <b>{{medication.display}}</b>
+                    <br>  <small>{{getType(medication)}}</small> </td>
             </ng-container>
 
             <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->

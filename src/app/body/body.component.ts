@@ -40,6 +40,8 @@ export class BodyComponent implements OnInit {
 
   notes : string[] = [];
 
+  queryCnt = 0;
+
   conceptid : string= undefined;
 
   display : string = undefined;
@@ -59,6 +61,7 @@ export class BodyComponent implements OnInit {
   codeableConcept : CodeableConcept = undefined;
 
   product : any = undefined;
+    productDisplay : any = undefined;
   //medicationProduct : IMedicinalProduct = undefined;
 
 
@@ -84,7 +87,10 @@ export class BodyComponent implements OnInit {
         const tempid = this.route.snapshot.paramMap.get('conceptid');
         if (this.conceptid !== tempid) {
             this.conceptid = tempid;
-            this.setup(this.conceptid);
+            if (this.conceptid != undefined) {
+                this.setup(this.conceptid);
+            }
+
         }
     }
 
@@ -107,7 +113,7 @@ export class BodyComponent implements OnInit {
       this.codeableConcept.coding = [
          this.getCoding() ];
 
-      const url = '/CodeSystem/$lookup?code='+ medication +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
+      const url = '/CodeSystem/$lookup?code='+ medication +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version='+this.terminologyService.getSNOMEDVersion()+'&property=*';
       this.terminologyService.getResource(url).subscribe(
           result => {
               this.processProducts(result);
@@ -133,7 +139,7 @@ export class BodyComponent implements OnInit {
                                             "value": medication
                                         }
                                     ],
-                                    "version": 'http://snomed.info/sct/32506021000036107/version/20201130'
+                                    "version": this.terminologyService.getSNOMEDVersionRaw()
                                 }
                             ]
                         }
@@ -174,8 +180,6 @@ export class BodyComponent implements OnInit {
         this.parentCodes =[  ];
         // Don't know name of concept at this point
         for ( const parameter of parameters.parameter) {
-
-            console.log(parameter.name);
             if (parameter.name === 'display') {
                 this.display = parameter.valueString;
             }
@@ -198,8 +202,9 @@ export class BodyComponent implements OnInit {
         this.codeableConcept = {};
         this.codeableConcept.coding = [
             this.getCoding() ];
-
+        this.queryCnt=0;
         this.processParameter(parameters.parameter);
+
     }
 
   processParameter(params : ParametersParameter[] ) {
@@ -207,6 +212,7 @@ export class BodyComponent implements OnInit {
       var unit = false;
       var unitOfUse = false;
       var ingredient = false;
+      var scheduled = false;
       if (params.length>0 && params[0].name === 'code' && params[0].valueCode != undefined && params[0].valueCode === 'parent' ) {
           this.getParents(params);
       }
@@ -214,21 +220,25 @@ export class BodyComponent implements OnInit {
       for ( const parameter of params) {
           // Process parent codes first .... not robust as second call could in theory beat first call
           if (parameter.valueCode != undefined) {
-              this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient);
+              this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient,scheduled);
               if (parameter.valueCode == '30523011000036108') manfacturedForm = true;
               if (parameter.valueCode == '700000081000036101') ingredient = true;
               if (parameter.valueCode == '177631000036102') unit = true;
               if (parameter.valueCode == '30548011000036101') unitOfUse = true;
+              if (parameter.valueCode == '13089101000001102') scheduled = true;
+
           }
           if (parameter.part !== undefined && parameter.part.length> 0) {
               this.processParameter(parameter.part);
           }
       }
 
+
+
   }
 
 
-  getDisplay(param : ParametersParameter, manfacturedForm,unit, unitOfUse, ingredient) {
+  getDisplay(param : ParametersParameter, manfacturedForm,unit, unitOfUse, ingredient, scheduled) {
 
       if (this.isNumber(param.valueCode)) {
 
@@ -253,11 +263,16 @@ export class BodyComponent implements OnInit {
                   this.ampp = true;
                   param.valueCode = 'trade product unit of use (30425011000036101)';
                   break;
-              case '30497011000036103':
+           /* AU  case '30497011000036103':
                   this.vtm = true;
                   param.valueCod= 'moiety (30497011000036103)';
+                  break; */
+              case '10363701000001104':
+                  this.vtm = true;
+                  param.valueCod= 'Virtual Therapeutic Moiety (10363701000001104)';
                   break;
               default:
+                  this.queryCnt++;
                   this.terminologyService.getResource('/CodeSystem/$lookup?code=' + param.valueCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&property=display').subscribe(
                       result => {
 
@@ -278,7 +293,6 @@ export class BodyComponent implements OnInit {
                                           "coding": [ ]
                                       };
                                       this.workerMedication.form.coding.push(coding);
-                                      console.log(this.medication);
                                       this.medication = {
                                           "code" : this.workerMedication.code,
                                           "form" : this.workerMedication.form
@@ -295,11 +309,35 @@ export class BodyComponent implements OnInit {
                                   if (unit) {
                                       this.notes.push('Unit: '+parameter.valueString)
                                   }
+                                  if (scheduled){
+                                      this.notes.push('Scheduled: '+parameter.valueString)
+                                  }
                                   // This is a bodge
-                                  param.valueCode = valueString;
+                                  delete param.valueCode;// = undefined;
                                   // This should be the answer
                                   param.valueCoding = coding;
                               }
+                          }
+                         // console.log(this.queryCnt);
+
+                      },
+                      error => {
+                          console.log('err qry' + this.queryCnt);
+                          this.queryCnt--;
+                          if (this.queryCnt == 0) {
+                              //   console.log("clone");
+                              //var clone = Object.assign({}, this.product);
+                              this.productDisplay = this.product;
+                          }
+                          console.log(error);
+                      },
+                      () => {
+                          console.log('complete qry '+this.queryCnt);
+                          this.queryCnt--;
+                          if (this.queryCnt == 0) {
+                              //   console.log("clone");
+                              //var clone = Object.assign({}, this.product);
+                              this.productDisplay = this.product;
                           }
                       }
                   );
@@ -318,9 +356,10 @@ export class BodyComponent implements OnInit {
                   case '30425011000036101': // - trade product unit of use
                   case '30497011000036103':
                   case '30404011000036106':
+                  case '10363701000001104': //vtm
                     break;
                   default: {
-                      const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%2Fversion%2F20201130&property=*';
+                      const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version='+this.terminologyService.getSNOMEDVersion()+'&property=*';
                       this.terminologyService.getResource(url).subscribe(
                           result => {
                               for (const parameter of result.parameter) {

@@ -34,6 +34,21 @@ export class TerminologyService {
 
   }
 
+  getMedicationValueSet() {
+    var encodedUri = encodeURIComponent('https://fhir.hl7.org.uk/STU3/ValueSet/CareConnect-MedicationCode-1');
+    console.log(encodedUri)
+     return encodedUri;
+  }
+
+  getSNOMEDVersionRaw() {
+    return 'http://snomed.info/sct/999000031000000106/version/20190807';
+  }
+  getSNOMEDVersion() {
+    var encodedUri = encodeURIComponent(this.getSNOMEDVersionRaw());
+    console.log(encodedUri)
+    return encodedUri;
+  }
+
   getHeaders(contentType: boolean = true): HttpHeaders {
 
     let headers = new HttpHeaders(

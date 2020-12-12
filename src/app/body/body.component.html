@@ -5,7 +5,7 @@
                 <div class="mat-body-1" fxFlex="80%">
 
                     <app-medication-render [medication]="medication" [codeableConcept]="codeableConcept"></app-medication-render>
-                    <app-product-render [product]="product"></app-product-render>
+                    <app-product-render [product]="productDisplay"></app-product-render>
                 </div>
                 <div class="mat-body-1" fxFlex="20%">
                     <mat-chip *ngIf="amp">AMP</mat-chip>
@@ -22,7 +22,8 @@
                     <table mat-table [dataSource]="parentDataSource" class="mat-elevation-z8">
                         <ng-container matColumnDef="display">
                             <th mat-header-cell *matHeaderCellDef> Display </th>
-                            <td mat-cell (click)="select(medication)" *matCellDef="let medication">  <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
+                            <td mat-cell (click)="select(medication)" *matCellDef="let medication" [matTooltip]="'SNOMED CT - '+medication.code">
+                                <b>{{medication.display}}</b> </td>
                         </ng-container>
 
                         <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
@@ -35,7 +36,8 @@
 
                         <ng-container matColumnDef="display">
                             <th mat-header-cell *matHeaderCellDef> Display </th>
-                            <td mat-cell (click)="select(medication)" *matCellDef="let medication">  <b>{{medication.display}}</b> <br> <small>{{medication.code}}</small> </td>
+                            <td mat-cell (click)="select(medication)" [matTooltip]="'SNOMED CT - '+medication.code" *matCellDef="let medication">
+                                <b>{{medication.display}}</b> </td>
                         </ng-container>
 
                         <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->

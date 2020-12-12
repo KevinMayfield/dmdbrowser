@@ -31,8 +31,8 @@ export class MainComponent implements OnInit {
   search(name) {
 
     if (name != undefined) {
-      const url = '/ValueSet/$expand?_format=json&url=https%3A%2F%2Fhealthterminologies.gov.au%2Ffhir%2FValueSet%2Faustralian-medication-1&filter='+name+'&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active';
-      //const url = '/ValueSet/$expand?_format=json&url=http%3A%2F%2Fsnomed.info%2Fsct%2F32506021000036107%3Ffhir_vs&filter=Clobazam&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active'
+      const url = '/ValueSet/$expand?_format=json&url='+this.terminologyService.getMedicationValueSet()+'&filter='+name+'&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active';
+      //const url = '/ValueSet/$expand?_format=json&url=https%3A%2F%2Fhealthterminologies.gov.au%2Ffhir%2FValueSet%2Faustralian-medication-1&filter='+name+'&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active';
       this.terminologyService.get(url).subscribe(
           result => {
             const valueSet = <ValueSet>result;
@@ -46,6 +46,16 @@ export class MainComponent implements OnInit {
 
   select(medication: ValueSetExpansionContains) {
     this.router.navigate([ medication.code ], {relativeTo: this.route});
+  }
+
+  getType(contains : ValueSetExpansionContains) {
+    for (const desingation of contains.designation) {
+      var splitted = desingation.value.split("(");
+      if (splitted.length > 1) {
+        return splitted[splitted.length-1].replace(')','');
+      }
+    }
+    return '';
   }
 
 }
