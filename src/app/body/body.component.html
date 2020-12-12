@@ -1,54 +1,67 @@
+<td-layout class="layout-demo" [mode]="'side'" [opened]="true" [sidenavWidth]="'257px'">
+    <div td-sidenav-content >
 
-<mat-card>
+            <td-message *ngIf="drugType" [label]="drugType" sublabel="Drug Type" color="primary" icon="info"></td-message>
+            <td-message *ngIf="unavailable" [label]="unavailable" [sublabel]="unavailableSub" color="warn" icon="warning"></td-message>
+            <td-message *ngIf="scheduled" label="Scheduled Drug" [sublabel]="scheduled" color="warn" icon="warning"></td-message>
+            <mat-list>
+                <mat-list-item *ngFor="let note of notes">
+                    {{note}}
+                </mat-list-item>
+            </mat-list>
+            <h3>Parent Medication</h3>
+            <table mat-table [dataSource]="parentDataSource" class="mat-elevation-z8">
+                <ng-container matColumnDef="display">
+                    <th mat-header-cell *matHeaderCellDef> Display </th>
+                    <td mat-cell (click)="select(medication)" *matCellDef="let medication" [matTooltip]="'SNOMED CT - '+medication.code">
+                        <b>{{medication.display}}</b> </td>
+                </ng-container>
 
-            <div>
-                <div class="mat-body-1" fxFlex="80%">
+                <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                <tr mat-row *matRowDef="let row; columns: childDisplayedColumns"></tr>
+            </table>
 
-                    <app-medication-render [medication]="medication" [codeableConcept]="codeableConcept"></app-medication-render>
-                    <app-product-render [product]="productDisplay"></app-product-render>
-                </div>
-                <div class="mat-body-1" fxFlex="20%">
-                    <mat-chip *ngIf="amp">AMP</mat-chip>
-                    <mat-chip *ngIf="vmp">VMP</mat-chip>
-                    <mat-chip *ngIf="ampp">AMPP</mat-chip>
-                    <mat-chip *ngIf="vmpp">VMPP</mat-chip>
-                    <mat-chip *ngIf="vtm">VTM</mat-chip>
-                    <mat-list>
-                        <mat-list-item *ngFor="let note of notes">
-                        {{note}}
-                        </mat-list-item>
-                    </mat-list>
-                    <h2>Parent Medication</h2>
-                    <table mat-table [dataSource]="parentDataSource" class="mat-elevation-z8">
-                        <ng-container matColumnDef="display">
-                            <th mat-header-cell *matHeaderCellDef> Display </th>
-                            <td mat-cell (click)="select(medication)" *matCellDef="let medication" [matTooltip]="'SNOMED CT - '+medication.code">
-                                <b>{{medication.display}}</b> </td>
-                        </ng-container>
-
-                        <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
-                        <tr mat-row *matRowDef="let row; columns: childDisplayedColumns"></tr>
-                    </table>
-
-                    <h2>Sub Medication</h2>
-                    <table mat-table [dataSource]="childDataSource" class="mat-elevation-z8">
+            <h3>Child Medication</h3>
+            <table mat-table [dataSource]="childDataSource" class="mat-elevation-z8">
 
 
-                        <ng-container matColumnDef="display">
-                            <th mat-header-cell *matHeaderCellDef> Display </th>
-                            <td mat-cell (click)="select(medication)" [matTooltip]="'SNOMED CT - '+medication.code" *matCellDef="let medication">
-                                <b>{{medication.display}}</b> </td>
-                        </ng-container>
+                <ng-container matColumnDef="display">
+                    <th mat-header-cell *matHeaderCellDef> Display </th>
+                    <td mat-cell (click)="select(medication)" [matTooltip]="'SNOMED CT - '+medication.code" *matCellDef="let medication">
+                        <b>{{medication.display}}</b> </td>
+                </ng-container>
 
-                        <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
-                        <tr mat-row *matRowDef="let row; columns: childDisplayedColumns"></tr>
-                    </table>
-                </div>
-            </div>
+                <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                <tr mat-row *matRowDef="let row; columns: childDisplayedColumns"></tr>
+            </table>
+            <span *ngIf="ampCodes.length>0">
+                        <h2>AMP Medication</h2>
+                        <table mat-table [dataSource]="ampDataSource" class="mat-elevation-z8">
 
-</mat-card>
+
+                            <ng-container matColumnDef="display">
+                                <th mat-header-cell *matHeaderCellDef> Display </th>
+                                <td mat-cell (click)="select(medication)" [matTooltip]="'SNOMED CT - '+medication.code" *matCellDef="let medication">
+                                    <b>{{medication.display}}</b> </td>
+                            </ng-container>
+
+                            <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                            <tr mat-row *matRowDef="let row; columns: childDisplayedColumns"></tr>
+                        </table>
+                    </span>
+    </div>
 
 
+
+
+        <app-medication-render [medication]="medication" [codeableConcept]="codeableConcept"></app-medication-render>
+        <app-product-render [product]="productDisplay"></app-product-render>
+
+
+
+
+
+</td-layout>
 
 
 

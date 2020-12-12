@@ -18,9 +18,11 @@ import Parameters = fhir.Parameters;
 import CodeableConcept = fhir.CodeableConcept;
 // @ts-ignore
 import Coding = fhir.Coding;
+import {CodingDataSource} from "../coding-data-source";
 
 export class CodeElement {
     code: string;
+    system? : string;
     display: string;
 }
 
@@ -31,11 +33,9 @@ export class CodeElement {
 })
 export class BodyComponent implements OnInit {
 
-    vmp = false;
-    amp = false;
-    ampp = false;
-    vmpp= false;
-    vtm= false;
+drugType : string = undefined;
+unavailable: string = undefined;
+unavailableSub = 'VMP non-availability indicator';
 
 
   notes : string[] = [];
@@ -46,14 +46,18 @@ export class BodyComponent implements OnInit {
 
   display : string = undefined;
 
+  scheduled : string = undefined;
+
   codeSystem : "http://snomed.info/sct";
 
   childDataSource: MedicationDataSource;
 
+  ampDataSource: MatTableDataSource<CodeElement>;
+
     parentCodes: CodeElement[] = [
     ];
     parentDataSource: MatTableDataSource<CodeElement>;
-
+  ampCodes : CodeElement[] = [];
   medication : Medication = undefined;
 
   workerMedication : Medication = undefined;
@@ -72,6 +76,7 @@ export class BodyComponent implements OnInit {
               private router: Router,
               private route: ActivatedRoute) {
       this.parentDataSource = new MatTableDataSource<CodeElement>();
+      this.ampDataSource = new MatTableDataSource<CodeElement>();
   }
 
   ngOnInit(): void {
@@ -102,13 +107,9 @@ export class BodyComponent implements OnInit {
 
 
       this.product = {};
-      this.vmp = false;
-      this.amp = false;
-      this.ampp = false;
-      this.vmpp= false;
-      this.vtm= false;
+      this.drugType = undefined;
       this.notes = [];
-
+      this.ampCodes = [];
       this.codeableConcept = {};
       this.codeableConcept.coding = [
          this.getCoding() ];
@@ -178,6 +179,9 @@ export class BodyComponent implements OnInit {
   }
     processProducts(parameters : Parameters ) {
         this.parentCodes =[  ];
+        this.ampCodes = [];
+        this.unavailable = undefined;
+        this.ampDataSource.data = this.ampCodes;
         // Don't know name of concept at this point
         for ( const parameter of parameters.parameter) {
             if (parameter.name === 'display') {
@@ -198,6 +202,7 @@ export class BodyComponent implements OnInit {
         this.medication = {
             "code" : this.workerMedication.code
         };
+        this.scheduled = undefined;
 
         this.codeableConcept = {};
         this.codeableConcept.coding = [
@@ -213,6 +218,10 @@ export class BodyComponent implements OnInit {
       var unitOfUse = false;
       var ingredient = false;
       var scheduled = false;
+      var synonym = false;
+      var prescribingStatus= false;
+      var amp =false;
+      var unavailable = false;
       if (params.length>0 && params[0].name === 'code' && params[0].valueCode != undefined && params[0].valueCode === 'parent' ) {
           this.getParents(params);
       }
@@ -220,13 +229,22 @@ export class BodyComponent implements OnInit {
       for ( const parameter of params) {
           // Process parent codes first .... not robust as second call could in theory beat first call
           if (parameter.valueCode != undefined) {
-              this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient,scheduled);
-              if (parameter.valueCode == '30523011000036108') manfacturedForm = true;
-              if (parameter.valueCode == '700000081000036101') ingredient = true;
-              if (parameter.valueCode == '177631000036102') unit = true;
+              this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient,scheduled,synonym,prescribingStatus, amp, unavailable);
+              if (parameter.valueCode == '30523011000036108' ||
+                  parameter.valueCode == '732947008' ||
+              parameter.valueCode == '10362901000001105') manfacturedForm = true;
+
+              if (parameter.valueCode == '700000081000036101' ||
+                  parameter.valueCode == '127489000'
+              || parameter.valueCode == '10362801000001104') ingredient = true;
+              if (parameter.valueCode == '177631000036102'
+              || parameter.valueCode == '732945000') unit = true;
               if (parameter.valueCode == '30548011000036101') unitOfUse = true;
               if (parameter.valueCode == '13089101000001102') scheduled = true;
-
+              if (parameter.valueCode == '900000000000013009') synonym = true;
+              if (parameter.valueCode == '8940001000001105') prescribingStatus= true;
+              if (parameter.valueCode == '10362701000001108') amp = true;
+              if (parameter.valueCode == '8940601000001102') unavailable = true;
           }
           if (parameter.part !== undefined && parameter.part.length> 0) {
               this.processParameter(parameter.part);
@@ -238,42 +256,45 @@ export class BodyComponent implements OnInit {
   }
 
 
-  getDisplay(param : ParametersParameter, manfacturedForm,unit, unitOfUse, ingredient, scheduled) {
+  getDisplay(param : ParametersParameter, manfacturedForm,unit, unitOfUse, ingredient, scheduled, synonym,prescribingStatus, amp, unavailable) {
 
       if (this.isNumber(param.valueCode)) {
 
           switch (param.valueCode) {
               case '30450011000036109': // Medicinal Product
-                  this.vmp = true;
+              case '10364001000001104':
+              case '10363801000001108':
+                  this.drugType = 'VMP';
                   param.valueCode = 'Medicinal Product (30450011000036109)';
                   break;
               case '30560011000036108' : // Trade Product
-                  this.amp = true;
-                  param.valueCode = 'Trade Product (30560011000036108)';
+              case "9191801000001103":
+              case '10363901000001102':
+                  this.drugType = 'AMP';
+                  param.valueCode = 'Trade Product';
                   break;
               case '30404011000036106':
+              case '30425011000036101': // - trade product unit of use
                   param.valueCode = 'trade product pack';
-                  this.ampp = true;
+                  this.drugType = 'AMPP';
                   break;
               case '30513011000036104': // medicinal product pack
-                  this.vmpp = true;
+                  this.drugType = 'VMPP';
                   param.valueCode = 'medicinal product pack (30513011000036104)';
                   break;
-              case '30425011000036101': // - trade product unit of use
-                  this.ampp = true;
-                  param.valueCode = 'trade product unit of use (30425011000036101)';
-                  break;
+
            /* AU  case '30497011000036103':
                   this.vtm = true;
                   param.valueCod= 'moiety (30497011000036103)';
                   break; */
               case '10363701000001104':
-                  this.vtm = true;
-                  param.valueCod= 'Virtual Therapeutic Moiety (10363701000001104)';
+                  this.drugType = 'VTM';
+                  param.valueCode= 'Virtual Therapeutic Moiety (10363701000001104)';
                   break;
               default:
                   this.queryCnt++;
-                  this.terminologyService.getResource('/CodeSystem/$lookup?code=' + param.valueCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&property=display').subscribe(
+                  const url = '/CodeSystem/$lookup?code='+ param.valueCode +'&system=http%3A%2F%2Fsnomed.info%2Fsct&version='+this.terminologyService.getSNOMEDVersion()+'&property=display';
+                  this.terminologyService.getResource(url).subscribe(
                       result => {
 
                           for (const parameter of result.parameter) {
@@ -304,13 +325,27 @@ export class BodyComponent implements OnInit {
                                       this.notes.push('Unit Of Use: '+parameter.valueString)
                                   }
                                   if (ingredient) {
-                                      this.notes.push('Active Ingredient: '+parameter.valueString)
+                                      this.notes.push('Ingredient: '+parameter.valueString)
                                   }
                                   if (unit) {
                                       this.notes.push('Unit: '+parameter.valueString)
                                   }
                                   if (scheduled){
-                                      this.notes.push('Scheduled: '+parameter.valueString)
+                                      this.notes.push('Scheduled: '+parameter.valueString);
+                                      if (!(parameter.valueString.indexOf('No Cont')==0)) this.scheduled = parameter.valueString;
+                                  }
+                                  if (synonym){
+                                      this.notes.push('Synonym: '+parameter.valueString)
+                                  }
+                                  if (prescribingStatus) {
+                                      this.notes.push('Prescribing Status: '+parameter.valueString)
+                                  }
+                                  if (amp) {
+                                      this.ampCodes.push(coding);
+                                      this.ampDataSource.data = this.ampCodes;
+                                  }
+                                  if (unavailable) {
+                                      if (!(parameter.valueString.startsWith("Available"))) this.unavailable =parameter.valueString;
                                   }
                                   // This is a bodge
                                   delete param.valueCode;// = undefined;
@@ -322,7 +357,7 @@ export class BodyComponent implements OnInit {
 
                       },
                       error => {
-                          console.log('err qry' + this.queryCnt);
+
                           this.queryCnt--;
                           if (this.queryCnt == 0) {
                               //   console.log("clone");
@@ -332,7 +367,7 @@ export class BodyComponent implements OnInit {
                           console.log(error);
                       },
                       () => {
-                          console.log('complete qry '+this.queryCnt);
+
                           this.queryCnt--;
                           if (this.queryCnt == 0) {
                               //   console.log("clone");
@@ -357,6 +392,10 @@ export class BodyComponent implements OnInit {
                   case '30497011000036103':
                   case '30404011000036106':
                   case '10363701000001104': //vtm
+                  case "9191801000001103": //trade family
+                  case '350295000': // oral form dose
+                  case '440131009':
+                  case '10364001000001104' : // 'ampp'
                     break;
                   default: {
                       const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version='+this.terminologyService.getSNOMEDVersion()+'&property=*';

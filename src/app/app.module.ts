@@ -31,6 +31,7 @@ import {CovalentJsonFormatterModule} from "@covalent/core/json-formatter";
 import {MessageService} from "./message.service";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import { ProductRenderComponent } from './product-render/product-render.component';
+import {CovalentMessageModule} from "@covalent/core/message";
 
 
 @NgModule({
@@ -51,7 +52,7 @@ import { ProductRenderComponent } from './product-render/product-render.componen
     CovalentHttpModule.forRoot(),
     CovalentHighlightModule,
     CovalentJsonFormatterModule,
-
+    CovalentMessageModule,
     CovalentSearchModule,
 
     MatIconModule,
