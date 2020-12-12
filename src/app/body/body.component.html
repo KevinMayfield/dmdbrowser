@@ -39,7 +39,6 @@
                         <h3>AMP Medication</h3>
                         <table mat-table [dataSource]="ampDataSource" class="mat-elevation-z8">
 
-
                             <ng-container matColumnDef="display">
                                 <th mat-header-cell *matHeaderCellDef> Display </th>
                                 <td mat-cell (click)="select(medication)" [matTooltip]="'SNOMED CT - '+medication.code" *matCellDef="let medication">
@@ -56,7 +55,7 @@
 
 
         <app-medication-render [medication]="medication" [codeableConcept]="codeableConcept"></app-medication-render>
-        <app-product-render [product]="productDisplay"></app-product-render>
+        <app-product-render [product]="productDisplay" [pharmaceuticalProduct]="productPharm"></app-product-render>
 
 
 

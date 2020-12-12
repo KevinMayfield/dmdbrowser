@@ -25,7 +25,6 @@ import {AppComponent} from "./app.component";
 import { BodyComponent } from './body/body.component';
 import {CovalentSearchModule} from "@covalent/core/search";
 import {CovalentCommonModule} from "@covalent/core/common";
-import {CovalentCodeEditorModule} from "@covalent/code-editor";
 import { MedicationRenderComponent } from './medication-render/medication-render.component';
 import {CovalentJsonFormatterModule} from "@covalent/core/json-formatter";
 import {MessageService} from "./message.service";
@@ -76,7 +75,6 @@ import {CovalentMessageModule} from "@covalent/core/message";
     MatDialogModule,
       MatChipsModule,
     CovalentCommonModule,
-    CovalentCodeEditorModule,
     MatCheckboxModule,
 
   ],

@@ -1,8 +1,16 @@
 <mat-card>
     <mat-card-header>
-        <h2>Medicinal Product and Package</h2>
+        <h2>Medicinal Definition</h2>
     </mat-card-header>
-
+    <span *ngIf="pharmaceuticalProduct">
+        <b>FHIR MedicinalProductPharmaceutical</b>
+        (R5 resource AdministrableProductDefinition)
+        <br>
+        <td-json-formatter  [data]="pharmaceuticalProduct" [levelsOpen]="8 "></td-json-formatter>
+        <br>
+    </span>
+    <b>Terminology Server Expansion</b>
+    <br>
     <td-json-formatter [data]="product" [levelsOpen]="8 "></td-json-formatter>
 </mat-card>
 
