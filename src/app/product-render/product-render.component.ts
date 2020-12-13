@@ -14,6 +14,8 @@ export class ProductRenderComponent implements OnInit {
   @Input()
   pharmaceuticalProduct : R4.IMedicinalProductPharmaceutical;
 
+  @Input()
+  medicationProduct : R4.IMedicinalProduct;
   constructor() { }
 
   ngOnInit(): void {

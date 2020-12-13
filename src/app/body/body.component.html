@@ -1,11 +1,22 @@
 <td-layout class="layout-demo" [mode]="'side'" [opened]="true" [sidenavWidth]="'257px'">
     <div td-sidenav-content >
+            <span *ngIf="medicinal">
+               <td-message *ngIf="(medicinal.legalStatusOfSupply != undefined) && (medicinal.legalStatusOfSupply.coding !=undefined)" label="Supply Status" [sublabel]="medicinal.legalStatusOfSupply.coding[0].display" color="primary" icon="info"></td-message>
 
-            <td-message *ngIf="drugType" [label]="drugType" sublabel="Drug Type" color="primary" icon="info"></td-message>
-            <td-message *ngIf="unavailable" [label]="unavailable" [sublabel]="unavailableSub" color="warn" icon="warning"></td-message>
-             <td-message *ngIf="discontinued" label="Discontinued" [sublabel]="discontinued" color="warn" icon="warning"></td-message>
-            <td-message *ngIf="scheduled" label="Scheduled Drug" [sublabel]="scheduled" color="warn" icon="warning"></td-message>
-            <mat-list>
+                <td-message *ngIf="medicinal.additionalMonitoringIndicator" label="Scheduled Drug" [sublabel]="medicinal.additionalMonitoringIndicator.coding[0].display" color="warn" icon="warning"></td-message>
+                <td-message *ngFor="let clss of medicinal.productClassification" label="Classification" [sublabel]="clss.coding[0].display">
+                </td-message>
+                  <td-message *ngIf="medicinal.combinedPharmaceuticalDoseForm" label="Dose Form" [sublabel]="medicinal.combinedPharmaceuticalDoseForm.coding[0].display">
+                </td-message>
+                </span>
+        <span *ngIf="productPharm">
+
+                  <td-message *ngIf="productPharm.routeOfAdministration" label="Route" [sublabel]="productPharm.routeOfAdministration[0].code.coding[0].display">
+                </td-message>
+             <td-message *ngFor="let ingredient of productPharm.ingredient" label="Ingredient" [sublabel]="ingredient.display">
+                </td-message>
+                </span>
+        <mat-list>
                 <mat-list-item *ngFor="let note of notes">
                     {{note}}
                 </mat-list-item>
@@ -55,10 +66,7 @@
 
 
         <app-medication-render [medication]="medication" [codeableConcept]="codeableConcept"></app-medication-render>
-        <app-product-render [product]="productDisplay" [pharmaceuticalProduct]="productPharm"></app-product-render>
-
-
-
+        <app-product-render [product]="productDisplay" [pharmaceuticalProduct]="productPharm" [medicationProduct]="medicinal"></app-product-render>
 
 
 </td-layout>

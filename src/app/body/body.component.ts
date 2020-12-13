@@ -35,10 +35,7 @@ export class CodeElement {
 })
 export class BodyComponent implements OnInit {
 
-drugType : string = undefined;
-unavailable: string = undefined;
-unavailableSub = 'VMP non-availability indicator';
-    discontinued :string = undefined;
+
 
 
   notes : string[] = [];
@@ -66,10 +63,7 @@ unavailableSub = 'VMP non-availability indicator';
 
     medicinalProduct : R4.IMedicinalProduct = undefined;
 
-    medicinal : R4.IMedicinalProduct = {
-        resourceType : 'MedicinalProduct',
-        name : undefined
-    };
+    medicinal : R4.IMedicinalProduct = undefined;
 
   ampDataSource: MatTableDataSource<CodeElement>;
 
@@ -124,8 +118,7 @@ unavailableSub = 'VMP non-availability indicator';
     clear() {
 
         this.product = {};
-        this.drugType = undefined;
-        this.discontinued = undefined;
+
         this.notes = [];
         this.ampCodes = [];
 
@@ -140,10 +133,18 @@ unavailableSub = 'VMP non-availability indicator';
             ingredient : [],
             routeOfAdministration : []
         };
+        this.medicinal = undefined;
+        this.medicinalProduct = {
+            resourceType : 'MedicinalProduct',
+            identifier : [],
+            name : [],
+            productClassification: [],
+            legalStatusOfSupply: {}
+        };
 
         this.parentCodes =[  ];
         this.ampCodes = [];
-        this.unavailable = undefined;
+
         this.ampDataSource.data = this.ampCodes;
 
         this.scheduled = undefined;
@@ -226,11 +227,13 @@ unavailableSub = 'VMP non-availability indicator';
         for ( const parameter of parameters.parameter) {
             if (parameter.name === 'display') {
                 this.display = parameter.valueString;
+                this.terminologyService.setDrugName(parameter.valueString);
             }
             if (parameter.name === 'system') {
                 this.codeSystem = parameter.valueString;
             }
         }
+
         this.workerMedication.code.coding = [
             this.getCoding()  ];
         this.medication = {
@@ -246,7 +249,16 @@ unavailableSub = 'VMP non-availability indicator';
                 "system": this.getCoding().system,
                 "value": this.getCoding().code
             }
-        )
+        );
+        this.medicinalProduct.identifier.push(
+            {
+                "system": this.getCoding().system,
+                "value": this.getCoding().code
+            }
+        );
+        this.medicinalProduct.name.push({
+            productName : this.getCoding().display
+        });
 
         this.processParameter(parameters.parameter);
 
@@ -274,7 +286,8 @@ unavailableSub = 'VMP non-availability indicator';
               this.getDisplay(parameter, manfacturedForm, unit, unitOfUse, ingredient,scheduled,synonym,prescribingStatus, amp, unavailable,discont, route);
               if (parameter.valueCode == '30523011000036108' ||
                   parameter.valueCode == '732947008' ||
-              parameter.valueCode == '10362901000001105') manfacturedForm = true;
+                  parameter.valueCode == '411116001' ||
+                    parameter.valueCode == '10362901000001105') manfacturedForm = true;
 
               if (parameter.valueCode == '700000081000036101' ||
                   parameter.valueCode == '127489000'
@@ -306,26 +319,44 @@ unavailableSub = 'VMP non-availability indicator';
 
           switch (param.valueCode) {
               case '30450011000036109': // Medicinal Product
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, '?? Product Pack'));
+                  param.valueCode = '?? Product ('+param.valueCode +')';
+                  break;
               case '10364001000001104':
+
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Actual medicinal product pack'));
+                  param.valueCode = 'Actual medicinal product pack ('+param.valueCode +')';
+                  break;
               case '10363801000001108':
-                  this.drugType = 'VMP';
-                  param.valueCode = 'Medicinal Product ('+param.valueCode +')';
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Virtual medicinal product'));
+                  param.valueCode = 'Virtual medicinal product ('+param.valueCode +')';
                   break;
               case '30560011000036108' : // Trade Product
-              case "9191801000001103":
-              case '10363901000001102':
-                  this.drugType = 'AMP';
-                  param.valueCode = 'Trade Product ('+param.valueCode +')';
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, '?? Product Pack'));
+                  param.valueCode = '?? Product ('+param.valueCode +')';
                   break;
+
+              case "9191801000001103":
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Trade family'));
+                  param.valueCode = 'Trade family ('+param.valueCode +')';
+                  break;
+
+              case '10363901000001102':
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode,'Actual medicinal product'));
+                  param.valueCode = 'Actual medicinal product ('+param.valueCode +')';
+                  break;
+
+
               case '30404011000036106':
               case '30425011000036101': // - trade product unit of use
+
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, '?? Product Pack'));
                   param.valueCode = 'trade product pack ('+param.valueCode +')';
-                  this.drugType = 'AMPP';
                   break;
-              case '30513011000036104': // medicinal product pack
-              case '8653601000001108':
-                  this.drugType = 'VMPP';
-                  param.valueCode = 'medicinal product pack ('+param.valueCode +')';
+
+              case '8653601000001108': // Virtual medicinal product pack
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode,'Virtual medicinal product pack'));
+                  param.valueCode = 'Virtual medicinal product pack ('+param.valueCode +')';
                   break;
 
            /* AU  case '30497011000036103':
@@ -333,7 +364,9 @@ unavailableSub = 'VMP non-availability indicator';
                   param.valueCod= 'moiety (30497011000036103)';
                   break; */
               case '10363701000001104':
-                  this.drugType = 'VTM';
+
+
+                  this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Virtual therapeutic moiety'));
                   param.valueCode= 'Virtual Therapeutic Moiety ('+param.valueCode +')';
                   break;
               default:
@@ -342,119 +375,140 @@ unavailableSub = 'VMP non-availability indicator';
                   this.terminologyService.getResource(url).subscribe(
                       result => {
 
-                          for (const parameter of result.parameter) {
-
-                              if (parameter.name === 'display') {
-
-                                  var valueString: string = parameter.valueString + ' (' + param.valueCode + ')';
-                                  var coding: Coding = {};
-                                  coding = {
-                                      "system": "http://snomed.info/sct",
-                                      "code" : param.valueCode,
-                                      "display": parameter.valueString
-                                  };
-                                  if (manfacturedForm) {
-
-                                      this.workerMedication.form=  {
-                                          "coding": [ ]
-                                      };
-                                      this.workerMedication.form.coding.push(coding);
-                                      this.medication = {
-                                          "code" : this.workerMedication.code,
-                                          "form" : this.workerMedication.form
-                                      };
-                                      this.pharmaceuticalProduct.administrableDoseForm = this.workerMedication.form;
-                                      // Above is not displaying
-                                      this.notes.push('Form: '+parameter.valueString)
-
-                                  }
-                                  if (unitOfUse) {
-                                      this.notes.push('Unit Of Use: '+parameter.valueString)
-                                  }
-                                  if (ingredient) {
-                                      this.notes.push('Ingredient: '+parameter.valueString);
-                                      this.pharmaceuticalProduct.ingredient.push({
-                                          "identifier" : {
-
-                                                      "system": "http://snomed.info/sct",
-                                                      "value" : param.valueCode
-                                          },
-                                          "display": parameter.valueString
-                                      });
-                                  }
-                                  if (unit) {
-                                      this.notes.push('Unit: '+parameter.valueString)
-                                  }
-                                  if (scheduled){
-                                      this.notes.push('Scheduled: '+parameter.valueString);
-                                      if (!(parameter.valueString.indexOf('No Cont')==0)) this.scheduled = parameter.valueString;
-                                  }
-                                  if (synonym){
-                                      this.notes.push('Synonym: '+parameter.valueString)
-                                  }
-                                  if (prescribingStatus) {
-                                      this.notes.push('Prescribing Status: '+parameter.valueString)
-                                  }
-                                  if (amp) {
-                                      this.ampCodes.push(coding);
-                                      this.ampDataSource.data = this.ampCodes;
-                                  }
-                                  if (unavailable) {
-                                      if (!(parameter.valueString.startsWith("Available"))) this.unavailable =parameter.valueString;
-                                  }
-                                  if (discont) {
-                                      this.discontinued= parameter.valueString;
-                                  }
-                                  if (route) {
-                                      this.notes.push('Route: '+parameter.valueString);
-
-                                        this.pharmaceuticalProduct.routeOfAdministration = [];
-                                          this.pharmaceuticalProduct.routeOfAdministration.push({
-                                              "code" : {
-                                                  coding : [
-                                                      {
-                                                          "system": "http://snomed.info/sct",
-                                                          "code" : param.valueCode,
-                                                          "display": parameter.valueString
-                                                      }
-                                                  ]
-                                              }
-                                          });
-
-                                  }
-                                  // This is a bodge
-                                  delete param.valueCode;// = undefined;
-                                  // This should be the answer
-                                  param.valueCoding = coding;
-                              }
-                          }
-                         // console.log(this.queryCnt);
-
+                         this.processResult(result, param, manfacturedForm,unit, unitOfUse, ingredient, scheduled, synonym,prescribingStatus, amp, unavailable,discont, route);
                       },
                       error => {
 
-                          this.queryCnt--;
-                          if (this.queryCnt == 0) {
-                              //   console.log("clone");
-                              //var clone = Object.assign({}, this.product);
-                              this.productDisplay = this.product;
-                          }
+                          this.updateMaster();
                           console.log(error);
                       },
                       () => {
-
-                          this.queryCnt--;
-                          if (this.queryCnt == 0) {
-                              //   console.log("clone");
-                              //var clone = Object.assign({}, this.product);
-                              this.productDisplay = this.product;
-                              if (this.pharmaceuticalProduct.routeOfAdministration.length>0 ) {
-                                  this.productPharm = this.pharmaceuticalProduct;
-                              }
-                          }
+                          this.updateMaster();
                       }
                   );
           }
+      }
+  }
+
+
+  processResult(result, param, manfacturedForm,unit, unitOfUse, ingredient, scheduled, synonym,prescribingStatus, amp, unavailable,discont, route) {
+      for (const parameter of result.parameter) {
+
+          if (parameter.name === 'display') {
+
+              var valueString: string = parameter.valueString + ' (' + param.valueCode + ')';
+              var coding: Coding = {};
+              coding = {
+                  "system": "http://snomed.info/sct",
+                  "code" : param.valueCode,
+                  "display": parameter.valueString
+              };
+              var concept = {
+                  coding : [
+                      coding
+                  ]
+              }
+              if (manfacturedForm) {
+
+                  this.workerMedication.form=  {
+                      "coding": [ ]
+                  };
+                  this.workerMedication.form.coding.push(coding);
+                  this.medication = {
+                      "code" : this.workerMedication.code,
+                      "form" : this.workerMedication.form
+                  };
+                  this.pharmaceuticalProduct.administrableDoseForm = this.workerMedication.form;
+                  this.medicinalProduct.combinedPharmaceuticalDoseForm = this.workerMedication.form;
+                  // Above is not displaying
+                  //      this.notes.push('Form: '+parameter.valueString)
+
+              }
+              if (unitOfUse) {
+                  this.notes.push('Unit Of Use: '+parameter.valueString)
+              }
+              if (ingredient) {
+                  this.pharmaceuticalProduct.ingredient.push({
+                      "identifier" : {
+
+                          "system": "http://snomed.info/sct",
+                          "value" : param.valueCode
+                      },
+                      "display": parameter.valueString
+                  });
+              }
+              if (unit) {
+                  this.notes.push('Unit: '+parameter.valueString)
+              }
+              if (scheduled){
+                  // this.notes.push('Scheduled: '+parameter.valueString);
+                  if (!(parameter.valueString.indexOf('No Cont')==0))
+                      this.medicinalProduct.additionalMonitoringIndicator = concept;
+              }
+              if (synonym){
+                  this.notes.push('Synonym: '+parameter.valueString)
+              }
+              if (prescribingStatus) {
+                  // this.notes.push('Prescribing Status: '+parameter.valueString);
+                  this.medicinalProduct.productClassification.push(concept);
+              }
+              if (amp) {
+                  this.ampCodes.push(coding);
+                  this.ampDataSource.data = this.ampCodes;
+              }
+              if (unavailable) {
+                  //  if (!(parameter.valueString.startsWith("Available"))) this.unavailable =parameter.valueString;
+                  this.medicinalProduct.legalStatusOfSupply = concept;
+              }
+              if (discont) {
+                  //  this.discontinued= parameter.valueString;
+                  this.medicinalProduct.legalStatusOfSupply = concept;
+              }
+              if (route) {
+                  //this.notes.push('Route: '+parameter.valueString);
+                  this.pharmaceuticalProduct.routeOfAdministration = [];
+                  this.pharmaceuticalProduct.routeOfAdministration.push(
+                      {
+                          code : concept
+                      }
+                  );
+              }
+              // This is a bodge
+              delete param.valueCode;// = undefined;
+              // This should be the answer
+              param.valueCoding = coding;
+          }
+      }
+      // console.log(this.queryCnt);
+
+
+  }
+
+
+  updateMaster() {
+      this.queryCnt--;
+      if (this.queryCnt == 0) {
+          //   console.log("clone");
+          //var clone = Object.assign({}, this.product);
+          this.productDisplay = this.product;
+          if (this.pharmaceuticalProduct.routeOfAdministration.length>0 ) {
+              this.productPharm = this.pharmaceuticalProduct;
+          }
+          if (this.medicinalProduct.name.length>0) {
+              this.medicinal = this.medicinalProduct;
+          }
+      }
+  }
+
+  getCodeableConcept(code, display) {
+      return {
+          coding : [
+              {
+                  "system": "http://snomed.info/sct",
+                  "code" : code,
+                  "display": display
+              }
+          ]
       }
   }
 

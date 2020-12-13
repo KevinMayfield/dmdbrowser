@@ -5,6 +5,7 @@ import {Observable} from "rxjs";
 import {environment} from "../environments/environment";
 // @ts-ignore
 import ValueSet = fhir.ValueSet;
+import {retry} from "rxjs/operators";
 
 export enum Formats {
   JsonFormatted = 'jsonf',
@@ -18,20 +19,22 @@ export enum Formats {
 })
 export class TerminologyService {
 
-  private resource: any;
-
 
   private format: Formats = Formats.JsonFormatted;
 
-  private rawResource: string;
+
+  private nameChange: EventEmitter<any> = new EventEmitter();
 
 
-
-
-  private resourceChange: EventEmitter<any> = new EventEmitter();
-  private rawResourceChange: EventEmitter<any> = new EventEmitter();
   constructor(private http: HttpClient, private messageService: MessageService) {
 
+  }
+
+  setDrugName(drugName : string) {
+     this.nameChange.emit(drugName);
+  }
+  getDrugNameChange() {
+    return this.nameChange;
   }
 
   getMedicationValueSet() {

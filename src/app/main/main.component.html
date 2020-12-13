@@ -37,7 +37,7 @@
             <button mat-icon-button td-menu-button tdLayoutToggle>
                 <mat-icon>search</mat-icon>
             </button>
-            Medication Browser
+            Medication Browser <span *ngIf="drugName"> - {{drugName}}</span>
         </div>
         <router-outlet></router-outlet>
     </td-layout-nav-list>

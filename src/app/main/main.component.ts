@@ -20,12 +20,17 @@ export class MainComponent implements OnInit {
 
   searchInput;
 
+  drugName = '';
+
   dataSource: MedicationDataSource;
 
   displayedColumns = [ 'display'];
 
 
   ngOnInit(): void {
+    this.terminologyService.getDrugNameChange().subscribe(name => {
+      this.drugName = name;
+    })
   }
 
   search(name) {

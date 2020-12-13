@@ -9,6 +9,12 @@
         <td-json-formatter  [data]="pharmaceuticalProduct" [levelsOpen]="8 "></td-json-formatter>
         <br>
     </span>
+    <span *ngIf="medicationProduct">
+        <b>FHIR MedicinalProduct</b>
+        <br>
+        <td-json-formatter  [data]="medicationProduct" [levelsOpen]="8 "></td-json-formatter>
+        <br>
+    </span>
     <b>Terminology Server $lookup (modified)</b>
     <br>
     <td-json-formatter [data]="product" [levelsOpen]="8 "></td-json-formatter>
