@@ -3,7 +3,7 @@
             <span *ngIf="medicinal">
                <td-message *ngIf="(medicinal.legalStatusOfSupply != undefined) && (medicinal.legalStatusOfSupply.coding !=undefined)" label="Supply Status" [sublabel]="medicinal.legalStatusOfSupply.coding[0].display" color="primary" icon="info"></td-message>
 
-                <td-message *ngIf="medicinal.additionalMonitoringIndicator" label="Scheduled Drug" [sublabel]="medicinal.additionalMonitoringIndicator.coding[0].display" color="warn" icon="warning"></td-message>
+                <td-message *ngIf="medicinal.additionalMonitoringIndicator" label="Scheduled Drug" [sublabel]="medicinal.additionalMonitoringIndicator.coding[0].display" color="accent" icon="warning"></td-message>
                 <td-message *ngFor="let clss of medicinal.productClassification" label="Classification" [sublabel]="clss.coding[0].display">
                 </td-message>
                   <td-message *ngIf="medicinal.combinedPharmaceuticalDoseForm" label="Dose Form" [sublabel]="medicinal.combinedPharmaceuticalDoseForm.coding[0].display">
