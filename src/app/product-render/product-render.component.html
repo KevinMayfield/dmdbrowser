@@ -1,26 +1,26 @@
-<mat-card>
-  <!--  <mat-card-header>
-        <h2>Medicinal Definition</h2>
-    </mat-card-header> -->
+
+
     <span *ngIf="pharmaceuticalProduct">
-        <td-expansion-panel label="FHIR MedicinalProductPharmaceutical" >
+        <td-expansion-panel label="FHIR MedicinalProductPharmaceutical" sublabel="Experimental" >
              <div class="md-padding">
                     <td-json-formatter  [data]="pharmaceuticalProduct" [levelsOpen]="8 "></td-json-formatter>
              </div>
         </td-expansion-panel>
+        <br>
     </span>
     <span *ngIf="medicationProduct">
 
-         <td-expansion-panel label="FHIR MedicinalProduct" >
+         <td-expansion-panel label="FHIR MedicinalProduct" sublabel="Experimental" >
              <div class="md-padding">
                  <td-json-formatter  [data]="medicationProduct" [levelsOpen]="8 "></td-json-formatter>
              </div>
          </td-expansion-panel>
+        <br>
     </span>
-    <td-expansion-panel label="Terminology Server $lookup (modified)" color="accent" >
+    <td-expansion-panel label="Terminology Server $lookup" sublabel="modfied" >
         <div class="md-padding">
-    <td-json-formatter [data]="product" [levelsOpen]="8 "></td-json-formatter>
+            <td-json-formatter [data]="product" [levelsOpen]="8 "></td-json-formatter>
         </div>
     </td-expansion-panel>
-</mat-card>
+
 

@@ -324,25 +324,25 @@ export class BodyComponent implements OnInit {
                     break;
                 case '10364001000001104':
 
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Actual medicinal product pack'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, 'Actual medicinal product pack');
                     param.valueCode = 'Actual medicinal product pack (' + param.valueCode + ')';
                     break;
                 case '10363801000001108':
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Virtual medicinal product'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, 'Virtual medicinal product');
                     param.valueCode = 'Virtual medicinal product (' + param.valueCode + ')';
                     break;
                 case '30560011000036108' : // Trade Product
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, '?? Product Pack'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, '?? Product Pack');
                     param.valueCode = '?? Product (' + param.valueCode + ')';
                     break;
 
                 case "9191801000001103":
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Trade family'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, 'Trade family');
                     param.valueCode = 'Trade family (' + param.valueCode + ')';
                     break;
 
                 case '10363901000001102':
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Actual medicinal product'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, 'Actual medicinal product');
                     param.valueCode = 'Actual medicinal product (' + param.valueCode + ')';
                     break;
 
@@ -350,12 +350,12 @@ export class BodyComponent implements OnInit {
                 case '30404011000036106':
                 case '30425011000036101': // - trade product unit of use
 
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, '?? Product Pack'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, '?? Product Pack');
                     param.valueCode = 'trade product pack (' + param.valueCode + ')';
                     break;
 
                 case '8653601000001108': // Virtual medicinal product pack
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Virtual medicinal product pack'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, 'Virtual medicinal product pack');
                     param.valueCode = 'Virtual medicinal product pack (' + param.valueCode + ')';
                     break;
 
@@ -366,7 +366,7 @@ export class BodyComponent implements OnInit {
                 case '10363701000001104':
 
 
-                    this.medicinalProduct.productClassification.push(this.getCodeableConcept(param.valueCode, 'Virtual therapeutic moiety'));
+                    this.medicinalProduct.type= this.getCodeableConcept(param.valueCode, 'Virtual therapeutic moiety');
                     param.valueCode = 'Virtual Therapeutic Moiety (' + param.valueCode + ')';
                     break;
                 default:

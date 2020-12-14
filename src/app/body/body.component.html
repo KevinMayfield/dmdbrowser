@@ -1,8 +1,8 @@
 <td-layout [mode]="'side'" [opened]="true" [sidenavWidth]="'257px'" class="layout-demo">
+
+    <!-- Side Navigation -->
+
     <div td-sidenav-content>
-
-
-
         <h3>Parent Medication</h3>
         <table [dataSource]="parentDataSource" class="mat-elevation-z8" mat-table>
             <ng-container matColumnDef="display">
@@ -46,8 +46,43 @@
             </table>
         </span>
     </div>
+
+
+    <!-- Body Content -->
+
+    <mat-card>
+    <mat-card-content>
+        <mat-card-header class="container">
+            <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="40px">
+
+                <h3 *ngIf="medication" >{{medication.code.coding[0].display}}</h3>
+
+
+                <div *ngIf="medicinal">
+
+                    <td-message
+                            *ngIf="(medicinal.legalStatusOfSupply != undefined) && (medicinal.legalStatusOfSupply.coding !=undefined)"
+                            [label]="medicinal.legalStatusOfSupply.coding[0].display" color="primary" icon="info"
+                            sublabel="Supply Status"></td-message>
+                </div>
+                <div *ngIf="medicinal">
+                    <td-message *ngIf="medicinal.type"
+                                [label]="medicinal.type.coding[0].display" color="primary" icon="info"
+                                sublabel="Type"></td-message>
+                </div>
+                <div *ngIf="medicinal">
+                    <td-message *ngIf="medicinal.additionalMonitoringIndicator"
+                                [label]="medicinal.additionalMonitoringIndicator.coding[0].display" color="warn" icon="warning"
+                                sublabel="Monitoring Indicator"></td-message>
+                </div>
+
+            </div>
+        </mat-card-header>
+    </mat-card-content>
+
     <span *ngIf="medication">
-        <td-expansion-panel [label]="medication.code.coding[0].display" (expanded)="true">
+
+        <td-expansion-panel label="Details"  >
             <div class="md-padding">
                 <div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.xs="0">
 
@@ -97,26 +132,11 @@
             </div>
         </td-expansion-panel>
     </span>
-    <span *ngIf="medicinal">
-        <div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.xs="0">
-
-            <div class="mat-body-1" fxFlex="50%">
-                <td-message
-                    *ngIf="(medicinal.legalStatusOfSupply != undefined) && (medicinal.legalStatusOfSupply.coding !=undefined)"
-                    [sublabel]="medicinal.legalStatusOfSupply.coding[0].display" color="primary" icon="info"
-                    label="Supply Status"></td-message>
-            </div>
-            <div class="mat-body-1" fxFlex="50%">
-                <td-message *ngIf="medicinal.additionalMonitoringIndicator"
-                    [sublabel]="medicinal.additionalMonitoringIndicator.coding[0].display" color="warn" icon="warning"
-                    label="Scheduled Drug"></td-message>
-            </div>
-
-        </div>
-    </span>
+    <br>
 
     <app-medication-render [codeableConcept]="codeableConcept" [medication]="medication"></app-medication-render>
     <app-product-render [medicationProduct]="medicinal" [pharmaceuticalProduct]="productPharm"
         [product]="productDisplay"></app-product-render>
+    </mat-card>
 
 </td-layout>
