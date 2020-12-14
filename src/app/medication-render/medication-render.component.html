@@ -9,9 +9,6 @@
             fxLayoutGap.xs="0">
 
            <div class="mat-body-1" fxFlex="50%">
-               <mat-card-header>
-                   <h2>FHIR Medication</h2>
-               </mat-card-header>
            <!--     <td-code-editor
                         [style.height.px]="300"
                         editorStyle="border:0;"
@@ -23,16 +20,14 @@
                         [(ngModel)]="editorVal"
                         flex
                 ></td-code-editor> -->
-
+               <td-expansion-panel label="FHIR Medication">
                 <td-json-formatter [data]="medication" [levelsOpen]="4"></td-json-formatter>
+               </td-expansion-panel>
            </div>
            <div class="mat-body-1" fxFlex="50%">
-               <mat-card-header>
-                   <h2>FHIR Codeable Concept</h2>
-               </mat-card-header>
-
-
+               <td-expansion-panel label="FHIR Codeable Concept">
                <td-json-formatter [data]="codeableConcept" [levelsOpen]="4"></td-json-formatter>
+               </td-expansion-panel>
            </div>
        </div>
    </mat-card>

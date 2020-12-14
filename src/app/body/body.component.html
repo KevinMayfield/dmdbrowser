@@ -1,50 +1,7 @@
 <td-layout [mode]="'side'" [opened]="true" [sidenavWidth]="'257px'" class="layout-demo">
     <div td-sidenav-content>
-            <span *ngIf="medicinal">
-               <td-message
-                       *ngIf="(medicinal.legalStatusOfSupply != undefined) && (medicinal.legalStatusOfSupply.coding !=undefined)"
-                       [sublabel]="medicinal.legalStatusOfSupply.coding[0].display" color="primary" icon="info"
-                       label="Supply Status"></td-message>
-
-                <td-message *ngIf="medicinal.additionalMonitoringIndicator"
-                            [sublabel]="medicinal.additionalMonitoringIndicator.coding[0].display" color="accent"
-                            icon="warning" label="Scheduled Drug"></td-message>
-            </span>
-<!--
-        <span *ngIf="medicinal">
-                <mat-card *ngFor="let clss of medicinal.productClassification">
-                    <span mat-line>
-                        {{clss.coding[0].display}}</span>
-                      <small matLine>Classification</small>
-                </mat-card>
 
 
-                <mat-list-item *ngIf="medicinal.combinedPharmaceuticalDoseForm">
-
-                     <span matLine>
-                      {{medicinal.combinedPharmaceuticalDoseForm.coding[0].display}}
-
-                     </span>
-                      <small matLine>Dose Form</small>
-                </mat-list-item>
-                </span>
-            <span *ngIf="productPharm">
-
-                  <mat-list-item *ngIf="productPharm.routeOfAdministration">
-                      <span mat-line>
-                      {{productPharm.routeOfAdministration[0].code.coding[0].display}}</span>
-                        <small mat-line>Route</small>
-                </mat-list-item>
-                <mat-list-item *ngFor="let ingredient of productPharm.ingredient">
-                    <span mat-line>{{ingredient.display}}</span>
-                    <small mat-line>Ingredient</small>
-                </mat-list-item>
-                </span>
-            <mat-list>
-            </mat-list>
-            <mat-list-item *ngFor="let note of notes">
-                {{note}}
-            </mat-list-item> -->
 
         <h3>Parent Medication</h3>
         <table [dataSource]="parentDataSource" class="mat-elevation-z8" mat-table>
@@ -74,30 +31,92 @@
             <tr *matRowDef="let row; columns: childDisplayedColumns" mat-row></tr>
         </table>
         <span *ngIf="ampCodes.length>0">
-                        <h3>AMP Medication</h3>
-                        <table [dataSource]="ampDataSource" class="mat-elevation-z8" mat-table>
+            <h3>AMP Medication</h3>
+            <table [dataSource]="ampDataSource" class="mat-elevation-z8" mat-table>
 
-                            <ng-container matColumnDef="display">
-                                <th *matHeaderCellDef mat-header-cell> Display </th>
-                                <td (click)="select(medication)" *matCellDef="let medication"
-                                    [matTooltip]="'SNOMED CT - '+medication.code" mat-cell>
-                                    <b>{{medication.display}}</b> </td>
-                            </ng-container>
+                <ng-container matColumnDef="display">
+                    <th *matHeaderCellDef mat-header-cell> Display </th>
+                    <td (click)="select(medication)" *matCellDef="let medication"
+                        [matTooltip]="'SNOMED CT - '+medication.code" mat-cell>
+                        <b>{{medication.display}}</b> </td>
+                </ng-container>
 
-                            <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
-                            <tr *matRowDef="let row; columns: childDisplayedColumns" mat-row></tr>
-                        </table>
-                    </span>
+                <!-- <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr> -->
+                <tr *matRowDef="let row; columns: childDisplayedColumns" mat-row></tr>
+            </table>
+        </span>
     </div>
+    <span *ngIf="medication">
+        <td-expansion-panel [label]="medication.code.coding[0].display">
+            <div class="md-padding">
+                <div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.xs="0">
 
+                    <div class="mat-body-1" fxFlex="50%">
+                        <span *ngIf="medicinal">
+                            <mat-list>
+                                <mat-list-item *ngFor="let clss of medicinal.productClassification">
+                                    <b matLine>Classification</b>
+                                    <i>
+                                        {{clss.coding[0].display}}</i>
+                                </mat-list-item>
+                            </mat-list>
+                        </span>
+                    </div>
+                    <div class="mat-body-1" fxFlex="50%">
+                        <span *ngIf="medicinal">
+                            <mat-list>
+
+                                <mat-list-item *ngIf="medicinal.combinedPharmaceuticalDoseForm">
+                                    <b mat-line>Dose Form</b>
+                                    <i>
+                                        {{medicinal.combinedPharmaceuticalDoseForm.coding[0].display}}
+                                    </i>
+                                </mat-list-item>
+                            </mat-list>
+                        </span>
+                        <span *ngIf="productPharm">
+                            <mat-list>
+                                <mat-list-item *ngIf="productPharm.routeOfAdministration">
+                                    <b mat-line>Route</b>
+                                    <i>
+                                        {{productPharm.routeOfAdministration[0].code.coding[0].display}}</i>
+
+                                </mat-list-item>
+                                <mat-list-item *ngFor="let ingredient of productPharm.ingredient">
+                                    <b mat-line>Ingredient</b>
+                                    <i>{{ingredient.display}}</i>
+
+                                </mat-list-item>
+                                <mat-list-item *ngFor="let note of notes">
+                                    {{note}}
+                                </mat-list-item>
+                            </mat-list>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </td-expansion-panel>
+    </span>
+    <span *ngIf="medicinal">
+        <div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.xs="0">
+
+            <div class="mat-body-1" fxFlex="50%">
+                <td-message
+                    *ngIf="(medicinal.legalStatusOfSupply != undefined) && (medicinal.legalStatusOfSupply.coding !=undefined)"
+                    [sublabel]="medicinal.legalStatusOfSupply.coding[0].display" color="primary" icon="info"
+                    label="Supply Status"></td-message>
+            </div>
+            <div class="mat-body-1" fxFlex="50%">
+                <td-message *ngIf="medicinal.additionalMonitoringIndicator"
+                    [sublabel]="medicinal.additionalMonitoringIndicator.coding[0].display" color="warn" icon="warning"
+                    label="Scheduled Drug"></td-message>
+            </div>
+
+        </div>
+    </span>
 
     <app-medication-render [codeableConcept]="codeableConcept" [medication]="medication"></app-medication-render>
     <app-product-render [medicationProduct]="medicinal" [pharmaceuticalProduct]="productPharm"
-                        [product]="productDisplay"></app-product-render>
-
+        [product]="productDisplay"></app-product-render>
 
 </td-layout>
-
-
-
-

@@ -1,22 +1,26 @@
 <mat-card>
-    <mat-card-header>
+  <!--  <mat-card-header>
         <h2>Medicinal Definition</h2>
-    </mat-card-header>
+    </mat-card-header> -->
     <span *ngIf="pharmaceuticalProduct">
-        <b>FHIR MedicinalProductPharmaceutical</b>
-        (R5 resource AdministrableProductDefinition)
-        <br>
-        <td-json-formatter  [data]="pharmaceuticalProduct" [levelsOpen]="8 "></td-json-formatter>
-        <br>
+        <td-expansion-panel label="FHIR MedicinalProductPharmaceutical" >
+             <div class="md-padding">
+                    <td-json-formatter  [data]="pharmaceuticalProduct" [levelsOpen]="8 "></td-json-formatter>
+             </div>
+        </td-expansion-panel>
     </span>
     <span *ngIf="medicationProduct">
-        <b>FHIR MedicinalProduct</b>
-        <br>
-        <td-json-formatter  [data]="medicationProduct" [levelsOpen]="8 "></td-json-formatter>
-        <br>
+
+         <td-expansion-panel label="FHIR MedicinalProduct" >
+             <div class="md-padding">
+                 <td-json-formatter  [data]="medicationProduct" [levelsOpen]="8 "></td-json-formatter>
+             </div>
+         </td-expansion-panel>
     </span>
-    <b>Terminology Server $lookup (modified)</b>
-    <br>
+    <td-expansion-panel label="Terminology Server $lookup (modified)" color="accent" >
+        <div class="md-padding">
     <td-json-formatter [data]="product" [levelsOpen]="8 "></td-json-formatter>
+        </div>
+    </td-expansion-panel>
 </mat-card>
 

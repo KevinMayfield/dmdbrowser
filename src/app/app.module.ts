@@ -31,6 +31,7 @@ import {MessageService} from "./message.service";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import { ProductRenderComponent } from './product-render/product-render.component';
 import {CovalentMessageModule} from "@covalent/core/message";
+import {CovalentExpansionPanelModule} from "@covalent/core/expansion-panel";
 
 
 @NgModule({
@@ -53,6 +54,7 @@ import {CovalentMessageModule} from "@covalent/core/message";
     CovalentJsonFormatterModule,
     CovalentMessageModule,
     CovalentSearchModule,
+    CovalentExpansionPanelModule,
 
     MatIconModule,
     FlexLayoutModule,
