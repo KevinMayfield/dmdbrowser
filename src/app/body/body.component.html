@@ -47,7 +47,7 @@
         </span>
     </div>
     <span *ngIf="medication">
-        <td-expansion-panel [label]="medication.code.coding[0].display">
+        <td-expansion-panel [label]="medication.code.coding[0].display" (expanded)="true">
             <div class="md-padding">
                 <div fxLayout fxLayout.xs="column" fxLayoutAlign="center" fxLayoutGap.xs="0">
 
