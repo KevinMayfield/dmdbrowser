@@ -32,6 +32,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import { ProductRenderComponent } from './product-render/product-render.component';
 import {CovalentMessageModule} from "@covalent/core/message";
 import {CovalentExpansionPanelModule} from "@covalent/core/expansion-panel";
+import {CovalentLoadingModule} from "@covalent/core/loading";
 
 
 @NgModule({
@@ -55,6 +56,7 @@ import {CovalentExpansionPanelModule} from "@covalent/core/expansion-panel";
     CovalentMessageModule,
     CovalentSearchModule,
     CovalentExpansionPanelModule,
+    CovalentLoadingModule,
 
     MatIconModule,
     FlexLayoutModule,

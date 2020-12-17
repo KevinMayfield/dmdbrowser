@@ -51,6 +51,11 @@
     <!-- Body Content -->
 
     <mat-card>
+
+        <ng-template tdLoading [tdLoadingUntil]="!loading">
+
+
+
     <mat-card-content>
         <mat-card-header class="container">
             <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="40px">
@@ -137,6 +142,7 @@
     <app-medication-render [codeableConcept]="codeableConcept" [medication]="medication"></app-medication-render>
     <app-product-render [medicationProduct]="medicinal" [pharmaceuticalProduct]="productPharm"
         [product]="productDisplay"></app-product-render>
+        </ng-template>
     </mat-card>
 
 </td-layout>

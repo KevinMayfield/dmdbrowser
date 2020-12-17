@@ -36,6 +36,8 @@ export class CodeElement {
 export class BodyComponent implements OnInit {
 
 
+    loading: boolean = false;
+
     allCompleted = 0;
 
     notes: string[] = [];
@@ -162,10 +164,12 @@ export class BodyComponent implements OnInit {
             // faulty needs to reassign once complete
 
             this.processProducts(this.product);
+            this.loading = false;
         }
     }
     setup(medication: string) {
 
+        this.loading = true;
         this.product = {};
         this.parentExpand = undefined;
         this.childExpand = undefined;
