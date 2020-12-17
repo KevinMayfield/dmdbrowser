@@ -156,11 +156,11 @@ export class BodyComponent implements OnInit {
 
     completedQuery() {
         this.allCompleted--;
-        console.log(this.allCompleted);
+
         if (this.allCompleted == 0 ) {
-            console.log('All Completed');
+
             // faulty needs to reassign once complete
-         //   console.log(this.product);
+
             this.processProducts(this.product);
         }
     }
@@ -227,7 +227,6 @@ export class BodyComponent implements OnInit {
         this.terminologyService.get('/ValueSet/$expand?url='+this.terminologyService.getSNOMEDVersion()+'?fhir_vs=ecl/>!'+medication).subscribe(
             result => {
                 this.parentExpand = result;
-                console.log(result);
             },
             err => console.error('Observer got an error: ' + err),
             () => {
@@ -237,7 +236,6 @@ export class BodyComponent implements OnInit {
         this.terminologyService.get('/ValueSet/$expand?url='+this.terminologyService.getSNOMEDVersion()+'?fhir_vs=ecl/'+medication+'.*').subscribe(
             result => {
                 this.childExpand = result;
-                console.log(result);
             },
             err => console.error('Observer got an error: ' + err),
             () => {
@@ -423,7 +421,6 @@ export class BodyComponent implements OnInit {
                             error => {
 
                                 this.updateMaster();
-                                console.log(error);
                             },
                             () => {
                                 this.updateMaster();
@@ -536,7 +533,7 @@ export class BodyComponent implements OnInit {
                 this.processEntry(coding, param, manfacturedForm, unit, unitOfUse, ingredient, scheduled, synonym, prescribingStatus, amp, unavailable, discont, route, classification)
             }
         }
-        // console.log(this.queryCnt);
+
 
 
     }
@@ -560,8 +557,6 @@ export class BodyComponent implements OnInit {
         this.queryCnt--;
 
         if (this.queryCnt == 0) {
-            console.log('Update Master');
-            console.log(this.product);
             //var clone = Object.assign({}, this.product);
             this.productDisplay = this.product;
             if (this.pharmaceuticalProduct.routeOfAdministration.length > 0) {
