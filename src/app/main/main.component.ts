@@ -36,7 +36,7 @@ export class MainComponent implements OnInit {
   search(name) {
 
     if (name != undefined) {
-      const url = '/ValueSet/$expand?_format=json&url='+this.terminologyService.getMedicationValueSet()+'&filter='+name+'&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active';
+      const url = '/ValueSet/$expand?_format=json&url='+this.terminologyService.getMedicationValueSet()+'&filter='+encodeURI(name)+'&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active';
       //const url = '/ValueSet/$expand?_format=json&url=https%3A%2F%2Fhealthterminologies.gov.au%2Ffhir%2FValueSet%2Faustralian-medication-1&filter='+name+'&includeDesignations=true&count=100&elements=expansion.contains.code,expansion.contains.display,expansion.contains.fullySpecifiedName,expansion.contains.active';
       this.terminologyService.get(url).subscribe(
           result => {

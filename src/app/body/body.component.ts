@@ -36,6 +36,8 @@ export class CodeElement {
 export class BodyComponent implements OnInit {
 
 
+    allCompleted = 0;
+
     notes: string[] = [];
 
     queryCnt = 0;
@@ -74,10 +76,11 @@ export class BodyComponent implements OnInit {
 
     codeableConcept: CodeableConcept = undefined;
 
-    product: any = undefined;
+    product: Parameters = undefined;
     productDisplay: any = undefined;
     //medicationProduct : IMedicinalProduct = undefined;
-
+    parentExpand: ValueSet = undefined;
+    childExpand: ValueSet = undefined;
 
     childDisplayedColumns = ['display'];
 
@@ -113,7 +116,7 @@ export class BodyComponent implements OnInit {
 
     clear() {
 
-        this.product = {};
+
 
         this.notes = [];
         this.ampCodes = [];
@@ -151,14 +154,28 @@ export class BodyComponent implements OnInit {
         this.queryCnt = 0;
     }
 
+    completedQuery() {
+        this.allCompleted--;
+        console.log(this.allCompleted);
+        if (this.allCompleted == 0 ) {
+            console.log('All Completed');
+            // faulty needs to reassign once complete
+         //   console.log(this.product);
+            this.processProducts(this.product);
+        }
+    }
     setup(medication: string) {
 
+        this.product = {};
+        this.parentExpand = undefined;
+        this.childExpand = undefined;
+        this.allCompleted = 4;
         const url = '/CodeSystem/$lookup?code=' + medication + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=' + this.terminologyService.getSNOMEDVersion() + '&property=*';
         this.terminologyService.getResource(url).subscribe(
             result => {
-                this.processProducts(result);
-                this.product = result.parameter;
 
+                this.product = result;
+                this.completedQuery();
             }
         );
         const parameters = {
@@ -199,10 +216,32 @@ export class BodyComponent implements OnInit {
                 if (valueSet.expansion != undefined) {
                     this.childDataSource = new MedicationDataSource(valueSet.expansion.contains);
                 }
+
             },
             err => console.error('Observer got an error: ' + err),
             () => {
+                this.completedQuery();
+            },
+        );
 
+        this.terminologyService.get('/ValueSet/$expand?url='+this.terminologyService.getSNOMEDVersion()+'?fhir_vs=ecl/>!'+medication).subscribe(
+            result => {
+                this.parentExpand = result;
+                console.log(result);
+            },
+            err => console.error('Observer got an error: ' + err),
+            () => {
+                this.completedQuery();
+            },
+        );
+        this.terminologyService.get('/ValueSet/$expand?url='+this.terminologyService.getSNOMEDVersion()+'?fhir_vs=ecl/'+medication+'.*').subscribe(
+            result => {
+                this.childExpand = result;
+                console.log(result);
+            },
+            err => console.error('Observer got an error: ' + err),
+            () => {
+                this.completedQuery();
             },
         );
 
@@ -371,110 +410,130 @@ export class BodyComponent implements OnInit {
                     break;
                 default:
                     this.queryCnt++;
+
                     const url = '/CodeSystem/$lookup?code=' + param.valueCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=' + this.terminologyService.getSNOMEDVersion() + '&property=display';
-                    this.terminologyService.getResource(url).subscribe(
-                        result => {
 
-                            this.processResult(result, param, manfacturedForm, unit, unitOfUse, ingredient, scheduled, synonym, prescribingStatus, amp, unavailable, discont, route, classification);
-                        },
-                        error => {
+                    var concept = this.hasCode(param.valueCode);
+                    if (concept === undefined) {
+                        this.terminologyService.getResource(url).subscribe(
+                            result => {
 
-                            this.updateMaster();
-                            console.log(error);
-                        },
-                        () => {
-                            this.updateMaster();
-                        }
-                    );
+                                this.processResult(result, param, manfacturedForm, unit, unitOfUse, ingredient, scheduled, synonym, prescribingStatus, amp, unavailable, discont, route, classification);
+                            },
+                            error => {
+
+                                this.updateMaster();
+                                console.log(error);
+                            },
+                            () => {
+                                this.updateMaster();
+                            }
+                        );
+                    }
+                    else {
+                        var coding: Coding = {};
+                        coding = {
+                            "system": "http://snomed.info/sct",
+                            "code": concept.code,
+                            "display": concept.display
+                        };
+                        this.processEntry(coding, param, manfacturedForm, unit, unitOfUse, ingredient, scheduled, synonym, prescribingStatus, amp, unavailable, discont, route, classification)
+                        this.updateMaster();
+                    }
             }
         }
     }
 
 
+    processEntry(coding, param, manfacturedForm, unit, unitOfUse, ingredient, scheduled, synonym, prescribingStatus, amp, unavailable, discont, route, classification) {
+        var concept = {
+            coding: [
+                coding
+            ]
+        }
+
+
+        if (manfacturedForm) {
+
+            this.workerMedication.form = {
+                "coding": []
+            };
+            this.workerMedication.form.coding.push(coding);
+            this.medication = {
+                "code": this.workerMedication.code,
+                "form": this.workerMedication.form
+            };
+            this.pharmaceuticalProduct.administrableDoseForm = this.workerMedication.form;
+            this.medicinalProduct.combinedPharmaceuticalDoseForm = this.workerMedication.form;
+            // Above is not displaying
+            //      this.notes.push('Form: '+parameter.valueString)
+
+        } else if (unitOfUse) {
+            this.notes.push('Unit Of Use: ' + coding.display)
+        } else if (ingredient) {
+            this.pharmaceuticalProduct.ingredient.push({
+                "identifier": {
+
+                    "system": "http://snomed.info/sct",
+                    "value": param.valueCode
+                },
+                "display": coding.display
+            });
+        } else if (unit) {
+            this.notes.push('Unit: ' + coding.display)
+
+        } else if (scheduled) {
+            // this.notes.push('Scheduled: '+parameter.valueString);
+            if (!(coding.display.indexOf('No Cont') == 0))
+                this.medicinalProduct.additionalMonitoringIndicator = concept;
+        } else if (synonym) {
+
+            this.medicinalProduct.name.push({
+                productName: coding.display
+            })
+        } else if (prescribingStatus) {
+            // this.notes.push('Prescribing Status: '+parameter.valueString);
+            this.medicinalProduct.productClassification.push(concept);
+        } else if (amp) {
+            this.ampCodes.push(coding);
+            this.ampDataSource.data = this.ampCodes;
+        } else if (unavailable) {
+            //  if (!(parameter.valueString.startsWith("Available"))) this.unavailable =parameter.valueString;
+            this.medicinalProduct.legalStatusOfSupply = concept;
+        } else if (discont) {
+            //  this.discontinued= parameter.valueString;
+            this.medicinalProduct.legalStatusOfSupply = concept;
+        } else if (route) {
+            //this.notes.push('Route: '+parameter.valueString);
+            this.pharmaceuticalProduct.routeOfAdministration = [];
+            this.pharmaceuticalProduct.routeOfAdministration.push(
+                {
+                    code: concept
+                }
+            );
+        } else {
+            if (classification) this.medicinalProduct.productClassification.push(concept);
+        }
+        // This is a bodge
+        delete param.valueCode;// = undefined;
+        // This should be the answer
+        param.valueCoding = coding;
+    }
+
     processResult(result, param, manfacturedForm, unit, unitOfUse, ingredient, scheduled, synonym, prescribingStatus, amp, unavailable, discont, route, classification) {
         for (const parameter of result.parameter) {
 
+
             if (parameter.name === 'display') {
 
-                var valueString: string = parameter.valueString + ' (' + param.valueCode + ')';
+
                 var coding: Coding = {};
                 coding = {
                     "system": "http://snomed.info/sct",
                     "code": param.valueCode,
                     "display": parameter.valueString
                 };
-                var concept = {
-                    coding: [
-                        coding
-                    ]
-                }
-
-
-                if (manfacturedForm) {
-
-                    this.workerMedication.form = {
-                        "coding": []
-                    };
-                    this.workerMedication.form.coding.push(coding);
-                    this.medication = {
-                        "code": this.workerMedication.code,
-                        "form": this.workerMedication.form
-                    };
-                    this.pharmaceuticalProduct.administrableDoseForm = this.workerMedication.form;
-                    this.medicinalProduct.combinedPharmaceuticalDoseForm = this.workerMedication.form;
-                    // Above is not displaying
-                    //      this.notes.push('Form: '+parameter.valueString)
-
-                } else if (unitOfUse) {
-                    this.notes.push('Unit Of Use: ' + parameter.valueString)
-                } else if (ingredient) {
-                    this.pharmaceuticalProduct.ingredient.push({
-                        "identifier": {
-
-                            "system": "http://snomed.info/sct",
-                            "value": param.valueCode
-                        },
-                        "display": parameter.valueString
-                    });
-                } else if (unit) {
-                    this.notes.push('Unit: ' + parameter.valueString)
-
-                } else if (scheduled) {
-                    // this.notes.push('Scheduled: '+parameter.valueString);
-                    if (!(parameter.valueString.indexOf('No Cont') == 0))
-                        this.medicinalProduct.additionalMonitoringIndicator = concept;
-                } else if (synonym) {
-
-                    this.medicinalProduct.name.push({
-                        productName: parameter.valueString
-                    })
-                } else if (prescribingStatus) {
-                    // this.notes.push('Prescribing Status: '+parameter.valueString);
-                    this.medicinalProduct.productClassification.push(concept);
-                } else if (amp) {
-                    this.ampCodes.push(coding);
-                    this.ampDataSource.data = this.ampCodes;
-                } else if (unavailable) {
-                    //  if (!(parameter.valueString.startsWith("Available"))) this.unavailable =parameter.valueString;
-                    this.medicinalProduct.legalStatusOfSupply = concept;
-                } else if (discont) {
-                    //  this.discontinued= parameter.valueString;
-                    this.medicinalProduct.legalStatusOfSupply = concept;
-                } else if (route) {
-                    //this.notes.push('Route: '+parameter.valueString);
-                    this.pharmaceuticalProduct.routeOfAdministration = [];
-                    this.pharmaceuticalProduct.routeOfAdministration.push(
-                        {
-                            code: concept
-                        }
-                    );
-                } else {
-                  if (classification) this.medicinalProduct.productClassification.push(concept);
-                }
-                // This is a bodge
-                delete param.valueCode;// = undefined;
-                // This should be the answer
-                param.valueCoding = coding;
+                this.processEntry(coding, param, manfacturedForm, unit, unitOfUse, ingredient, scheduled, synonym, prescribingStatus, amp, unavailable, discont, route, classification)
             }
         }
         // console.log(this.queryCnt);
@@ -482,11 +541,27 @@ export class BodyComponent implements OnInit {
 
     }
 
+    hasCode(concept) {
+
+        for (const container of this.childExpand.expansion.contains) {
+            if (container.code === concept) {
+                return container;
+            }
+        }
+        for (const container of this.parentExpand.expansion.contains) {
+            if (container.code === concept) {
+                return container;
+            }
+        }
+        return undefined;
+    }
 
     updateMaster() {
         this.queryCnt--;
+
         if (this.queryCnt == 0) {
-            //   console.log("clone");
+            console.log('Update Master');
+            console.log(this.product);
             //var clone = Object.assign({}, this.product);
             this.productDisplay = this.product;
             if (this.pharmaceuticalProduct.routeOfAdministration.length > 0) {

@@ -4,7 +4,7 @@
 
     <div td-sidenav-content>
         <h3>Parent Medication</h3>
-        <table [dataSource]="parentDataSource" class="mat-elevation-z8" mat-table>
+        <table [dataSource]="parentDataSource"  mat-table>
             <ng-container matColumnDef="display">
                 <th *matHeaderCellDef mat-header-cell> Display</th>
                 <td (click)="select(medication)" *matCellDef="let medication"
@@ -17,7 +17,7 @@
         </table>
 
         <h3>Child Medication</h3>
-        <table [dataSource]="childDataSource" class="mat-elevation-z8" mat-table>
+        <table [dataSource]="childDataSource" mat-table>
 
 
             <ng-container matColumnDef="display">
@@ -32,7 +32,7 @@
         </table>
         <span *ngIf="ampCodes.length>0">
             <h3>AMP Medication</h3>
-            <table [dataSource]="ampDataSource" class="mat-elevation-z8" mat-table>
+            <table [dataSource]="ampDataSource"  mat-table>
 
                 <ng-container matColumnDef="display">
                     <th *matHeaderCellDef mat-header-cell> Display </th>
