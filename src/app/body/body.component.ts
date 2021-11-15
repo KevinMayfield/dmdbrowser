@@ -174,7 +174,8 @@ export class BodyComponent implements OnInit {
         this.parentExpand = undefined;
         this.childExpand = undefined;
         this.allCompleted = 4;
-        const url = '/CodeSystem/$lookup?code=' + medication + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=' + this.terminologyService.getSNOMEDVersion() + '&property=*';
+       // const url = '/CodeSystem/$lookup?code=' + medication + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=' + this.terminologyService.getSNOMEDVersion() + '&property=*';
+        const url = '/CodeSystem/$lookup?code=' + medication + '&system=http%3A%2F%2Fsnomed.info%2Fsct' + '&property=*';
         this.terminologyService.getResource(url).subscribe(
             result => {
 
@@ -200,7 +201,7 @@ export class BodyComponent implements OnInit {
                                             "value": medication
                                         }
                                     ],
-                                    "version": this.terminologyService.getSNOMEDVersionRaw()
+                                   // "version": this.terminologyService.getSNOMEDVersionRaw()
                                 }
                             ]
                         }
@@ -228,7 +229,7 @@ export class BodyComponent implements OnInit {
             },
         );
 
-        this.terminologyService.get('/ValueSet/$expand?url='+this.terminologyService.getSNOMEDVersion()+'?fhir_vs=ecl/>!'+medication).subscribe(
+        this.terminologyService.get('/ValueSet/$expand?url=http://snomed.info/sct?fhir_vs=ecl/>!'+medication).subscribe(
             result => {
                 this.parentExpand = result;
             },
@@ -237,7 +238,7 @@ export class BodyComponent implements OnInit {
                 this.completedQuery();
             },
         );
-        this.terminologyService.get('/ValueSet/$expand?url='+this.terminologyService.getSNOMEDVersion()+'?fhir_vs=ecl/'+medication+'.*').subscribe(
+        this.terminologyService.get('/ValueSet/$expand?url=http://snomed.info/sct?fhir_vs=ecl/'+medication+'.*').subscribe(
             result => {
                 this.childExpand = result;
             },
@@ -413,7 +414,7 @@ export class BodyComponent implements OnInit {
                 default:
                     this.queryCnt++;
 
-                    const url = '/CodeSystem/$lookup?code=' + param.valueCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=' + this.terminologyService.getSNOMEDVersion() + '&property=display';
+                    const url = '/CodeSystem/$lookup?code=' + param.valueCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&property=display';
 
                     var concept = this.hasCode(param.valueCode);
                     if (concept === undefined) {
@@ -544,14 +545,18 @@ export class BodyComponent implements OnInit {
 
     hasCode(concept) {
 
-        for (const container of this.childExpand.expansion.contains) {
-            if (container.code === concept) {
-                return container;
+        if (this.childExpand.expansion != undefined) {
+            for (const container of this.childExpand.expansion.contains) {
+                if (container.code === concept) {
+                    return container;
+                }
             }
         }
-        for (const container of this.parentExpand.expansion.contains) {
-            if (container.code === concept) {
-                return container;
+        if (this.parentExpand.expansion != undefined) {
+            for (const container of this.parentExpand.expansion.contains) {
+                if (container.code === concept) {
+                    return container;
+                }
             }
         }
         return undefined;
@@ -604,7 +609,7 @@ export class BodyComponent implements OnInit {
                     case '10363901000001102':
                         break;
                     default: {
-                        const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&version=' + this.terminologyService.getSNOMEDVersion() + '&property=*';
+                        const url = '/CodeSystem/$lookup?code=' + parentCode + '&system=http%3A%2F%2Fsnomed.info%2Fsct&property=*';
                         this.terminologyService.getResource(url).subscribe(
                             result => {
                                 for (const parameter of result.parameter) {

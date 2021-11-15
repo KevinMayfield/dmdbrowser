@@ -28,6 +28,8 @@ export class MainComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.terminologyService.doAuthenticate();
+
     this.terminologyService.getDrugNameChange().subscribe(name => {
       this.drugName = name;
     })
