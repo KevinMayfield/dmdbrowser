@@ -3,7 +3,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 // @ts-ignore
 import ValueSet = fhir.ValueSet;
-import {TerminologyService} from "../terminology.service";
+import {TerminologyService} from "../service/terminology.service";
 import {MedicationDataSource} from "../medication-data-source";
 // @ts-ignore
 import ValueSetExpansionContains = fhir.ValueSetExpansionContains;
@@ -18,8 +18,8 @@ import Parameters = fhir.Parameters;
 import CodeableConcept = fhir.CodeableConcept;
 // @ts-ignore
 import Coding = fhir.Coding;
-import {CodingDataSource} from "../coding-data-source";
-import {R4} from '@ahryman40k/ts-fhir-types';
+import { R4 } from '@ahryman40k/ts-fhir-types';
+
 
 
 export class CodeElement {
@@ -545,14 +545,14 @@ export class BodyComponent implements OnInit {
 
     hasCode(concept) {
 
-        if (this.childExpand.expansion != undefined) {
+        if (this.childExpand?.expansion != undefined) {
             for (const container of this.childExpand.expansion.contains) {
                 if (container.code === concept) {
                     return container;
                 }
             }
         }
-        if (this.parentExpand.expansion != undefined) {
+        if (this.parentExpand?.expansion != undefined) {
             for (const container of this.parentExpand.expansion.contains) {
                 if (container.code === concept) {
                     return container;

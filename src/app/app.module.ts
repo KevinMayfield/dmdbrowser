@@ -27,12 +27,16 @@ import {CovalentSearchModule} from "@covalent/core/search";
 import {CovalentCommonModule} from "@covalent/core/common";
 import { MedicationRenderComponent } from './medication-render/medication-render.component';
 import {CovalentJsonFormatterModule} from "@covalent/core/json-formatter";
-import {MessageService} from "./message.service";
+import {MessageService} from "./service/message.service";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import { ProductRenderComponent } from './product-render/product-render.component';
 import {CovalentMessageModule} from "@covalent/core/message";
 import {CovalentExpansionPanelModule} from "@covalent/core/expansion-panel";
 import {CovalentLoadingModule} from "@covalent/core/loading";
+import {TokenInterceptor} from "./service/token.interceptor";
+import {HTTP_INTERCEPTORS} from "@angular/common/http";
+import {AuthService} from "./service/auth.service";
+import {JWT_OPTIONS, JwtHelperService} from "@auth0/angular-jwt";
 
 
 @NgModule({
@@ -82,7 +86,16 @@ import {CovalentLoadingModule} from "@covalent/core/loading";
     MatCheckboxModule,
 
   ],
-  providers: [ MessageService ],
+  providers: [ MessageService,
+      AuthService,
+    { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
+      JwtHelperService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

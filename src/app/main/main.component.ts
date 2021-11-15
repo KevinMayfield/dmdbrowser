@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import {MedicationDataSource} from "../medication-data-source";
-import {TerminologyService} from "../terminology.service";
+import {TerminologyService} from "../service/terminology.service";
 // @ts-ignore
 import ValueSet = fhir.ValueSet;
 // @ts-ignore
 import ValueSetExpansionContains = fhir.ValueSetExpansionContains;
 import {ActivatedRoute, Router} from "@angular/router";
+import {AuthService} from "../service/auth.service";
 
 @Component({
   selector: 'app-main',
@@ -15,6 +16,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 export class MainComponent implements OnInit {
 
   constructor(private terminologyService: TerminologyService,
+              private authService: AuthService,
               private router: Router,
               private route: ActivatedRoute) { }
 
@@ -28,7 +30,7 @@ export class MainComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.terminologyService.doAuthenticate();
+    this.authService.doAuthenticate();
 
     this.terminologyService.getDrugNameChange().subscribe(name => {
       this.drugName = name;

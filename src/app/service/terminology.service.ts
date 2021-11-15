@@ -4,7 +4,7 @@ import {MessageService} from "./message.service";
 import {Observable} from "rxjs";
 // @ts-ignore
 import ValueSet = fhir.ValueSet;
-import {environment} from "../environments/environment";
+import {environment} from "../../environments/environment";
 
 
 export enum Formats {
@@ -22,11 +22,7 @@ export class TerminologyService {
 
   private format: Formats = Formats.JsonFormatted;
 
-  private accessToken: string = undefined
-
   private nameChange: EventEmitter<any> = new EventEmitter();
-
-  private authenticated: EventEmitter<any> = new EventEmitter();
 
   constructor(private http: HttpClient, private messageService: MessageService) {
 
@@ -71,7 +67,7 @@ export class TerminologyService {
     const url = environment.config.baseUrl + search;
     let headers = new HttpHeaders(
     );
-    headers = headers.append('Authorization', 'Bearer '+this.getAccessToken());
+
     if (this.format === 'xml') {
       headers = headers.append('Content-Type', 'application/fhir+xml');
       headers = headers.append('Accept', 'application/fhir+xml');
@@ -87,7 +83,7 @@ export class TerminologyService {
     const url: string = environment.config.baseUrl + search;
     let headers = new HttpHeaders(
     );
-    headers = headers.append('Authorization', 'Bearer '+this.getAccessToken());
+
     if (this.format === 'xml') {
       headers = headers.append('Content-Type', 'application/fhir+xml');
       headers = headers.append('Accept', 'application/fhir+xml');
@@ -101,35 +97,15 @@ export class TerminologyService {
   public post(resource: string, body: any): Observable<any> {
 
     let headers: HttpHeaders = this.getHeaders(false);
-    headers = headers.append('Authorization', 'Bearer '+this.getAccessToken());
+
     headers = headers.append('Content-Type', 'application/fhir+json');
     headers = headers.append('Accept', 'application/fhir+json');
 
     return this.http.post<any>(environment.config.baseUrl + resource, body, {headers: headers});
   }
 
-  getAccessToken() {
-    return this.accessToken
-  }
 
-  doAuthenticate() {
-    let body = new URLSearchParams();
-    body.append('grant_type', 'client_credentials');
-    body.append('client_id', environment.config.ontoClientId);
-    body.append('client_secret', environment.config.ontoClientSecret);
-    let headers: HttpHeaders = this.getHeaders(false);
-    headers = headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    this.http.post<any>('https://ontology.nhs.uk/authorisation/auth/realms/nhs-digital-terminology/protocol/openid-connect/token',body.toString(),
-        { headers: headers }).subscribe(response => {
-      console.log(response)
 
-      this.accessToken = response.access_token;
-      console.log(this.accessToken)
-      this.authenticated.emit(this.accessToken);
-    },err =>{
-      console.log('oops')
-      console.log(err)
-    })
-  }
+
 
 }
